@@ -75,7 +75,7 @@ export async function importCommand(options: ImportOptions): Promise<number> {
         }
         return 1;
       }
-      if (!e.slug || typeof e.slug !== 'string' || e.slug.includes('/') || e.slug.includes('..') || e.slug.includes('\\')) {
+      if (!e.slug || typeof e.slug !== 'string' || e.slug.includes('/') || e.slug.includes('..') || e.slug.includes('\\') || e.slug.includes('\0')) {
         if (options.json) {
           console.log(JSON.stringify({ status: 'error', message: `Invalid slug: ${e.slug}` }));
         } else {
