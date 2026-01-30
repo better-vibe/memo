@@ -1,5 +1,5 @@
 import { MemoryGraph } from '../core/graph';
-import { EntityType } from '../core/entity';
+import { EntityType, ENTITY_TYPES } from '../core/entity';
 
 export interface ViewOptions {
   project: string;
@@ -30,7 +30,16 @@ export async function viewCommand(options: ViewOptions): Promise<number> {
     return 1;
   }
 
-  const [entityType, slug] = parts as [EntityType, string];
+  const [rawEntityType, slug] = parts as [string, string];
+  if (!ENTITY_TYPES.includes(rawEntityType as EntityType)) {
+    if (options.json) {
+      console.log(JSON.stringify({ status: 'error', message: `Invalid entity type: ${rawEntityType}` }));
+    } else {
+      console.error(`Invalid entity type: ${rawEntityType}`);
+    }
+    return 1;
+  }
+  const entityType = rawEntityType as EntityType;
 
   if (!graph.entityExists(entityType, slug)) {
     if (options.json) {

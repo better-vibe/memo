@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-import * as path from 'path';
 import { MemoryGraph } from '../core/graph';
 import { atomicWriteText } from '../core/facts';
 

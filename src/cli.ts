@@ -18,6 +18,41 @@ program
   .description('Three-layer technical knowledge graph CLI')
   .version('0.1.0');
 
+// Global hooks to implement behavior for global options like --verbose, --no-edit, and --force.
+program.hook('preAction', (thisCommand, actionCommand) => {
+  const rootOpts = thisCommand.opts() as {
+    verbose?: boolean;
+    noEdit?: boolean;
+    force?: boolean;
+  };
+
+  // Enable basic verbose logging for all commands when --verbose is set.
+  if (rootOpts.verbose) {
+    // Use stderr for logging to avoid interfering with JSON or other machine-readable output on stdout.
+    try {
+      // actionCommand.opts() contains the options specific to the invoked subcommand.
+      const cmdOpts = actionCommand.opts();
+      // Avoid circular refs or non-serializable values in logging by falling back gracefully.
+      const safeOpts = JSON.stringify(cmdOpts);
+      console.error(
+        `[memo] Running command "${actionCommand.name()}" with options: ${safeOpts}`
+      );
+    } catch {
+      console.error(`[memo] Running command "${actionCommand.name()}"`);
+    }
+  }
+
+  // Propagate global "no edit" / batch mode to the environment so commands can honor it consistently.
+  if (rootOpts.noEdit) {
+    process.env.MEMO_NO_EDIT = '1';
+  }
+
+  // Propagate global "force" behavior similarly, so downstream code can opt into skipping safety checks.
+  if (rootOpts.force) {
+    process.env.MEMO_FORCE = '1';
+  }
+});
+
 // Global options
 function addGlobalOpts(cmd: Command): Command {
   return cmd

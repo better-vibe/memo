@@ -1,5 +1,4 @@
-import * as path from 'path';
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import { MemoryGraph } from '../core/graph';
 import { EntityType } from '../core/entity';
 import * as entityMod from '../core/entity';
@@ -32,7 +31,16 @@ export async function editCommand(options: EditOptions): Promise<number> {
     return 1;
   }
 
-  const [entityType, slug] = parts as [EntityType, string];
+  const [rawEntityType, slug] = parts as [string, string];
+  if (!entityMod.ENTITY_TYPES.includes(rawEntityType as EntityType)) {
+    if (options.json) {
+      console.log(JSON.stringify({ status: 'error', message: `Invalid entity type: ${rawEntityType}` }));
+    } else {
+      console.error(`Invalid entity type: ${rawEntityType}`);
+    }
+    return 1;
+  }
+  const entityType = rawEntityType as EntityType;
 
   if (!graph.entityExists(entityType, slug)) {
     if (options.json) {
@@ -47,7 +55,10 @@ export async function editCommand(options: EditOptions): Promise<number> {
   const summaryFile = entityMod.summaryPath(graph.graphRoot, entityType, slug);
 
   try {
-    execSync(`${editor} "${summaryFile}"`, { stdio: 'inherit' });
+    const result = spawnSync(editor, [summaryFile], { stdio: 'inherit' });
+    if (result.error) {
+      throw result.error;
+    }
     if (options.json) {
       console.log(JSON.stringify({ status: 'ok', edited: summaryFile }));
     } else {
