@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { atomicWriteText, atomicWriteJSON } from './facts';
 
 export const ENTITY_TYPES = ['projects', 'developers', 'libraries', 'patterns'] as const;
 export type EntityType = (typeof ENTITY_TYPES)[number];
@@ -42,8 +43,8 @@ export function createEntity(
 
   const today = new Date().toISOString().split('T')[0];
   const summary = `# ${displayName}\n\n${description || ''}\n\nLast updated: ${today}\n`;
-  fs.writeFileSync(summaryPath(graphRoot, entityType, slug), summary, 'utf-8');
-  fs.writeFileSync(itemsPath(graphRoot, entityType, slug), '[]', 'utf-8');
+  atomicWriteText(summaryPath(graphRoot, entityType, slug), summary);
+  atomicWriteJSON(itemsPath(graphRoot, entityType, slug), []);
 }
 
 export function listEntities(graphRoot: string, entityType?: EntityType): { type: EntityType; slug: string }[] {
@@ -82,5 +83,5 @@ export function updateEntityCache(metaRoot: string, name: string, slug: string):
     try { cache = JSON.parse(fs.readFileSync(cachePath, 'utf-8')); } catch { /* ignore */ }
   }
   cache[name] = slug;
-  fs.writeFileSync(cachePath, JSON.stringify(cache, null, 2), 'utf-8');
+  atomicWriteJSON(cachePath, cache);
 }

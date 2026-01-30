@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as os from 'os';
+import * as crypto from 'crypto';
 import { FactItem, FactItemsArraySchema } from './validation';
 
 /**
@@ -9,7 +9,8 @@ import { FactItem, FactItemsArraySchema } from './validation';
 export function atomicWriteJSON(filePath: string, data: unknown): void {
   const dir = path.dirname(filePath);
   fs.mkdirSync(dir, { recursive: true });
-  const tmp = path.join(dir, `.tmp-${process.pid}-${Date.now()}.json`);
+  const random = crypto.randomBytes(4).toString('hex');
+  const tmp = path.join(dir, `.tmp-${process.pid}-${Date.now()}-${random}.json`);
   try {
     fs.writeFileSync(tmp, JSON.stringify(data, null, 2) + '\n', 'utf-8');
     fs.renameSync(tmp, filePath);
@@ -22,7 +23,8 @@ export function atomicWriteJSON(filePath: string, data: unknown): void {
 export function atomicWriteText(filePath: string, content: string): void {
   const dir = path.dirname(filePath);
   fs.mkdirSync(dir, { recursive: true });
-  const tmp = path.join(dir, `.tmp-${process.pid}-${Date.now()}`);
+  const random = crypto.randomBytes(4).toString('hex');
+  const tmp = path.join(dir, `.tmp-${process.pid}-${Date.now()}-${random}`);
   try {
     fs.writeFileSync(tmp, content, 'utf-8');
     fs.renameSync(tmp, filePath);
@@ -85,10 +87,16 @@ export function isDuplicate(existingFacts: FactItem[], newFact: string): boolean
  * Returns facts that should potentially be superseded.
  */
 export function findContradictions(existingFacts: FactItem[], newCategory: string, newFact: string): FactItem[] {
-  // For version facts, any existing active version fact is a potential contradiction
-  if (newCategory === 'version' || newCategory === 'dependency') {
+  // For version facts, only existing version facts contradict
+  if (newCategory === 'version') {
     return existingFacts.filter(
-      f => f.status === 'active' && (f.category === 'version' || f.category === 'dependency'),
+      f => f.status === 'active' && f.category === 'version',
+    );
+  }
+  // For dependency facts, only existing dependency facts contradict
+  if (newCategory === 'dependency') {
+    return existingFacts.filter(
+      f => f.status === 'active' && f.category === 'dependency',
     );
   }
   return [];

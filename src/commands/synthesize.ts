@@ -1,5 +1,5 @@
 import { MemoryGraph } from '../core/graph';
-import { getActiveFacts } from '../core/facts';
+import { ENTITY_TYPES } from '../core/entity';
 import { appendAudit } from '../core/audit';
 
 export interface SynthesizeOptions {
@@ -27,7 +27,7 @@ function generateSummary(entityType: string, slug: string, facts: import('../cor
   }
 
   for (const [category, items] of byCategory) {
-    summary += `## ${category.charAt(0).toUpperCase() + category.slice(1).replace('_', ' ')}\n`;
+    summary += `## ${category.charAt(0).toUpperCase() + category.slice(1).replace(/_/g, ' ')}\n`;
     for (const item of items) {
       summary += `- ${item.fact}\n`;
     }
@@ -64,7 +64,16 @@ export async function synthesizeCommand(options: SynthesizeOptions): Promise<num
       }
       return 1;
     }
-    entities = [{ type: parts[0] as any, slug: parts[1] }];
+    const [rawEntityType, slug] = parts as [string, string];
+    if (!ENTITY_TYPES.includes(rawEntityType as import('../core/entity').EntityType)) {
+      if (options.json) {
+        console.log(JSON.stringify({ status: 'error', message: `Invalid entity type: ${rawEntityType}` }));
+      } else {
+        console.error(`Invalid entity type: ${rawEntityType}`);
+      }
+      return 1;
+    }
+    entities = [{ type: rawEntityType as any, slug }];
   } else {
     if (options.json) {
       console.log(JSON.stringify({ status: 'error', message: 'Specify --all or an entity path' }));

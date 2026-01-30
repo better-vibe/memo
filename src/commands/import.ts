@@ -66,6 +66,24 @@ export async function importCommand(options: ImportOptions): Promise<number> {
   let imported = 0;
   if (Array.isArray(data.entities)) {
     for (const e of data.entities) {
+      // Validate entity type and slug to prevent path traversal
+      if (!entityMod.ENTITY_TYPES.includes(e.type as entityMod.EntityType)) {
+        if (options.json) {
+          console.log(JSON.stringify({ status: 'error', message: `Invalid entity type: ${e.type}` }));
+        } else {
+          console.error(`Invalid entity type: ${e.type}`);
+        }
+        return 1;
+      }
+      if (!e.slug || typeof e.slug !== 'string' || e.slug.includes('/') || e.slug.includes('..') || e.slug.includes('\\') || e.slug.includes('\0')) {
+        if (options.json) {
+          console.log(JSON.stringify({ status: 'error', message: `Invalid slug: ${e.slug}` }));
+        } else {
+          console.error(`Invalid slug: ${e.slug}`);
+        }
+        return 1;
+      }
+      
       const dir = entityMod.entityPath(graph.graphRoot, e.type, e.slug);
       fs.mkdirSync(dir, { recursive: true });
       if (e.summary) {

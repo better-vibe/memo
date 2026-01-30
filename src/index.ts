@@ -15,6 +15,7 @@ export { extractCommand } from './commands/extract';
 export { synthesizeCommand } from './commands/synthesize';
 export { viewCommand } from './commands/view';
 export { searchCommand } from './commands/search';
+export { editCommand } from './commands/edit';
 export { verifyCommand } from './commands/verify';
 export { statusCommand } from './commands/status';
 export { exportCommand } from './commands/export';
