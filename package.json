@@ -1,0 +1,33 @@
+{
+  "name": "@better-vibe/memo",
+  "version": "0.1.0",
+  "description": "CLI for three-layer technical knowledge graph memory system",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "bin": {
+    "memo": "bin/memo"
+  },
+  "scripts": {
+    "build": "bun build src/cli.ts --outdir dist --target bun",
+    "test": "bun test",
+    "lint": "bun x tsc --noEmit",
+    "prepublishOnly": "bun run build"
+  },
+  "keywords": ["memory", "knowledge-graph", "cli", "agent", "ai"],
+  "author": "Better Vibe",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^12.1.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.0",
+    "typescript": "^5.9.3"
+  },
+  "files": [
+    "src/",
+    "bin/",
+    "templates/"
+  ]
+}
