@@ -72,7 +72,7 @@ echo "Project uses TypeScript" | memo extract
 memo extract --source conversation.md
 
 # Inline
-memo extract --data "Developer Alice knows Rust"
+memo extract --data "Project uses React"
 
 # Dry run (preview only)
 echo "New fact" | memo extract --dry-run
@@ -106,7 +106,6 @@ memo synthesize --all
 
 # Synthesize one entity
 memo synthesize --entity projects/my-project
-memo synthesize --entity developers/alice
 ```
 
 ---
@@ -129,9 +128,6 @@ memo view <entity> [options]
 ```bash
 # View project
 memo view projects/my-project
-
-# View developer
-memo view developers/alice
 
 # Include superseded facts
 memo view projects/my-project --full
@@ -267,9 +263,8 @@ memo status --json
 ```
 Memory Graph Status
 ==================
-Entities: 12
+Entities: 8
   - projects: 3
-  - developers: 4
   - libraries: 3
   - patterns: 2
 

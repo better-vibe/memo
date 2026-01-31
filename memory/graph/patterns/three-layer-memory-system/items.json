@@ -1,0 +1,12 @@
+[
+  {
+    "id": "pat-three-layer-memory-system-001",
+    "fact": "Architecture consists of Knowledge Graph, AGENTS.md rules, and DECISIONS.md",
+    "category": "architecture",
+    "timestamp": "2025-01-31",
+    "source": "Project documentation and source analysis",
+    "status": "active",
+    "confidence": 1,
+    "evidence": "memory/docs/three-layer-memory-system.md describes the three layers"
+  }
+]

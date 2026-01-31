@@ -10,6 +10,7 @@ import { statusCommand } from './commands/status';
 import { exportCommand } from './commands/export';
 import { importCommand } from './commands/import';
 import { helpAgentCommand } from './commands/help-agent';
+import { syncDocsCommand } from './commands/sync-docs';
 
 const program = new Command();
 
@@ -158,8 +159,18 @@ addGlobalOpts(
   program
     .command('help-agent')
     .description('Generate agent integration guide')
+    .option('--list-docs', 'List available documentation files')
+    .option('--show-doc <name>', 'Show specific documentation file')
 ).action(async (opts) => {
   process.exitCode = await helpAgentCommand(opts);
+});
+
+addGlobalOpts(
+  program
+    .command('sync-docs')
+    .description('Sync AI agent documentation to memory/docs/')
+).action(async (opts) => {
+  process.exitCode = await syncDocsCommand(opts);
 });
 
 program.parseAsync(process.argv).catch((err) => {

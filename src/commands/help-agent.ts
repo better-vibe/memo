@@ -1,8 +1,33 @@
+import * as fs from 'fs';
+import * as path from 'path';
+import { listPrompts, loadPrompt, getPromptsSourceDir } from '../core/prompts';
+
 export interface HelpAgentOptions {
   json: boolean;
+  listDocs?: boolean;
+  showDoc?: string;
+  project?: string;
 }
 
 const AGENT_GUIDE = `# Agent Integration Guide for memo
+
+## Quick Start
+
+1. Read \`memory/docs/three-layer-memory-system.md\` to understand the architecture
+2. Use commands below to interact with the knowledge graph
+3. Read \`memory/docs/extract.md\` for fact extraction format
+
+## Documentation Location
+
+All AI agent documentation is in \`memory/docs/\`:
+- \`three-layer-memory-system.md\` - System overview and invariants
+- \`extract.md\` - How to format facts for extraction
+- \`synthesize.md\` - How to rewrite summaries
+- \`facts-item-schema.md\` - JSON schema for facts
+- \`agents.md\` - Operating rules
+- \`decisions.md\` - Decision log format
+- \`entity-naming-and-resolution.md\` - Entity conventions
+- \`entity-summary-template.md\` - Summary templates
 
 ## Extraction Format
 Pass a JSON array of fact proposals to \`memo extract\`:
@@ -10,7 +35,7 @@ Pass a JSON array of fact proposals to \`memo extract\`:
 \`\`\`json
 [
   {
-    "entityType": "projects|developers|libraries|patterns",
+    "entityType": "projects|libraries|patterns",
     "entityName": "Display Name",
     "fact": "Atomic, specific claim",
     "category": "dependency|version|constraint|architecture|decision|ownership|expertise|bug|tech_debt|rule|status",
@@ -60,7 +85,6 @@ memo import --input backup.json --json
 ## What to Extract
 - Dependency versions, breaking changes
 - Architecture decisions + rationale
-- Developer roles and expertise
 - Project status, constraints
 - Known bugs, tech debt
 - Coding standards, rules
@@ -72,8 +96,47 @@ memo import --input backup.json --json
 `;
 
 export async function helpAgentCommand(options: HelpAgentOptions): Promise<number> {
+  // Handle --list-docs
+  if (options.listDocs) {
+    const docs = listPrompts();
+    if (options.json) {
+      console.log(JSON.stringify({ status: 'ok', docs }));
+    } else {
+      console.log('Available documentation in memory/docs/:');
+      docs.forEach(doc => console.log(`  - ${doc}.md`));
+    }
+    return 0;
+  }
+
+  // Handle --show-doc
+  if (options.showDoc) {
+    const content = loadPrompt(options.showDoc);
+    if (!content) {
+      if (options.json) {
+        console.log(JSON.stringify({ status: 'error', message: `Documentation not found: ${options.showDoc}` }));
+      } else {
+        console.error(`Documentation not found: ${options.showDoc}`);
+        console.error('Use --list-docs to see available documentation.');
+      }
+      return 1;
+    }
+
+    if (options.json) {
+      console.log(JSON.stringify({ status: 'ok', name: options.showDoc, content }));
+    } else {
+      console.log(content);
+    }
+    return 0;
+  }
+
+  // Default: show guide
   if (options.json) {
-    console.log(JSON.stringify({ status: 'ok', guide: AGENT_GUIDE }));
+    const docs = listPrompts();
+    console.log(JSON.stringify({ 
+      status: 'ok', 
+      guide: AGENT_GUIDE,
+      availableDocs: docs,
+    }));
   } else {
     console.log(AGENT_GUIDE);
   }

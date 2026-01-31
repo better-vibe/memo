@@ -1,0 +1,62 @@
+[
+  {
+    "id": "proj-better-vibememo-001",
+    "fact": "CLI tool for three-layer technical knowledge graph memory system",
+    "category": "status",
+    "timestamp": "2025-01-31",
+    "source": "package.json analysis",
+    "status": "active",
+    "confidence": 1,
+    "evidence": "package.json: description field"
+  },
+  {
+    "id": "proj-better-vibememo-002",
+    "fact": "Uses TypeScript 5.9.3 with strict mode enabled",
+    "category": "dependency",
+    "timestamp": "2025-01-31",
+    "source": "package.json and tsconfig.json analysis",
+    "status": "active",
+    "confidence": 1,
+    "evidence": "package.json devDependencies: typescript ^5.9.3, tsconfig.json: strict: true"
+  },
+  {
+    "id": "proj-better-vibememo-003",
+    "fact": "Uses Bun as runtime and build tool",
+    "category": "architecture",
+    "timestamp": "2025-01-31",
+    "source": "package.json analysis",
+    "status": "active",
+    "confidence": 1,
+    "evidence": "package.json scripts use 'bun' command, devDependencies include @types/bun"
+  },
+  {
+    "id": "proj-better-vibememo-004",
+    "fact": "ES Module format (type: module)",
+    "category": "constraint",
+    "timestamp": "2025-01-31",
+    "source": "package.json analysis",
+    "status": "active",
+    "confidence": 1,
+    "evidence": "package.json: type: module"
+  },
+  {
+    "id": "proj-better-vibememo-005",
+    "fact": "Has 11 CLI commands: init, extract, synthesize, view, search, edit, verify, status, export, import, help-agent, sync-docs",
+    "category": "status",
+    "timestamp": "2025-01-31",
+    "source": "src/cli.ts analysis",
+    "status": "active",
+    "confidence": 1,
+    "evidence": "cli.ts defines 12 commands via program.command() calls"
+  },
+  {
+    "id": "proj-better-vibememo-006",
+    "fact": "Supports 3 entity types: projects, libraries, patterns",
+    "category": "architecture",
+    "timestamp": "2025-01-31",
+    "source": "src/core/entity.ts analysis",
+    "status": "active",
+    "confidence": 1,
+    "evidence": "ENTITY_TYPES = ['projects', 'libraries', 'patterns']"
+  }
+]

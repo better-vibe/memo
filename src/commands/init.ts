@@ -1,63 +1,14 @@
 import * as fs from 'fs';
+import * as path from 'path';
 import { MemoryGraph } from '../core/graph';
 import { atomicWriteText } from '../core/facts';
+import { copyPromptsToProject, getProjectDocsDir, loadPrompt } from '../core/prompts';
 
 export interface InitOptions {
   project: string;
   json: boolean;
   force: boolean;
 }
-
-const AGENTS_TEMPLATE = `# AGENTS — Operating Rules
-
-## Memory System — Three Layers
-
-### Layer 1: Knowledge Graph (\`~/memory/graph/\`)
-Structure:
-- \`projects/<project-slug>/summary.md\` + \`items.json\`
-- \`developers/<dev-slug>/summary.md\` + \`items.json\`
-- \`libraries/<lib-slug>/summary.md\` + \`items.json\`
-- \`patterns/<pattern-slug>/summary.md\` + \`items.json\`
-
-Tiered retrieval order:
-1. \`summary.md\` (default context window)
-2. \`items.json\` (loaded for history/rationale/verification)
-3. \`AGENTS.md\` (stable rules and constraints)
-4. \`DECISIONS.md\` (decision rationale and trade-offs)
-
-Rules:
-- Durable facts MUST be stored as atomic items in \`items.json\`.
-- Facts MUST include timestamp and source.
-- Never delete facts. Mark superseded and link via \`supersededBy\`.
-- Summaries MUST be rewritten from active facts, keeping them short and current.
-- If an entity does not exist, create it with \`summary.md\` + \`items.json\`.
-
-### Writing Discipline
-- Prefer small, composable writes.
-- All file updates MUST be atomic (write temp file + rename).
-- Changes MUST be idempotent.
-
-### What to Remember vs Skip
-Remember: dependency versions, architecture decisions, code constraints, developer roles, project status, known bugs, tech debt.
-Skip: ephemeral error logs, one-off debugging, temporary feature flags, session-specific details.
-
-### Conflict Handling
-- Add new fact as \`active\`, mark old as \`superseded\`, link via \`supersededBy\`.
-`;
-
-const DECISIONS_TEMPLATE = `# Technical Decisions
-
-## Format
-Each decision section includes:
-- **Decision**: Short title
-- **Date Decided**: ISO date
-- **Rationale**: Why this choice was made
-- **Trade-offs**: What was given up
-- **Status**: active | superseded | under_review
-- **Related Facts**: Entity slugs in knowledge graph
-
-<!-- Add decisions below -->
-`;
 
 export async function initCommand(options: InitOptions): Promise<number> {
   const graph = new MemoryGraph(options.project);
@@ -73,18 +24,47 @@ export async function initCommand(options: InitOptions): Promise<number> {
 
   graph.initialize();
 
-  // Write AGENTS.md if not exists or force
-  if (!fs.existsSync(graph.agentsPath) || options.force) {
-    atomicWriteText(graph.agentsPath, AGENTS_TEMPLATE);
+  // Handle AGENTS.md - append if exists, create if not, overwrite if force
+  const agentsContent = loadPrompt('agents') || '# AGENTS\n\n<!-- Add agent rules and constraints below -->\n';
+  if (options.force || !fs.existsSync(graph.agentsPath)) {
+    // Force overwrite or create new
+    atomicWriteText(graph.agentsPath, agentsContent);
+  } else {
+    // File exists, check if memo content already present
+    const existingContent = fs.readFileSync(graph.agentsPath, 'utf-8');
+    const hasMemoSection = existingContent.includes('## Memory System') || 
+                           existingContent.includes('Three-Layer Memory System') ||
+                           existingContent.includes('three-layer-memory-system');
+    if (!hasMemoSection) {
+      // Append memo section to existing file
+      const memoSection = `\n\n${agentsContent}`;
+      atomicWriteText(graph.agentsPath, existingContent + memoSection);
+    }
   }
 
-  // Write DECISIONS.md if not exists or force
-  if (!fs.existsSync(graph.decisionsPath) || options.force) {
-    atomicWriteText(graph.decisionsPath, DECISIONS_TEMPLATE);
+  // Handle DECISIONS.md - append if exists, create if not, overwrite if force
+  const decisionsContent = loadPrompt('decisions') || '# Technical Decisions\n\n<!-- Add decisions below -->\n';
+  if (options.force || !fs.existsSync(graph.decisionsPath)) {
+    // Force overwrite or create new
+    atomicWriteText(graph.decisionsPath, decisionsContent);
+  } else {
+    // File exists, check if memo content already present
+    const existingContent = fs.readFileSync(graph.decisionsPath, 'utf-8');
+    const hasMemoSection = existingContent.includes('Knowledge Graph') ||
+                           existingContent.includes('Entity slugs in knowledge graph');
+    if (!hasMemoSection) {
+      // Append memo section to existing file
+      const memoSection = `\n\n${decisionsContent}`;
+      atomicWriteText(graph.decisionsPath, existingContent + memoSection);
+    }
   }
+
+  // Copy AI agent documentation to memory/docs/
+  const docsResult = copyPromptsToProject(graph.projectRoot);
+  const docsDir = getProjectDocsDir(graph.projectRoot);
 
   if (options.json) {
-    console.log(JSON.stringify({
+    const result: any = {
       status: 'ok',
       message: 'Memory graph initialized',
       paths: {
@@ -92,14 +72,24 @@ export async function initCommand(options: InitOptions): Promise<number> {
         agents: graph.agentsPath,
         decisions: graph.decisionsPath,
         meta: graph.metaRoot,
+        docs: docsDir,
       },
-    }));
+      docsCopied: docsResult.copied,
+    };
+    if (docsResult.errors.length > 0) {
+      result.warnings = docsResult.errors;
+    }
+    console.log(JSON.stringify(result));
   } else {
     console.log('✅ Memory graph initialized');
     console.log(`   Graph:     ${graph.graphRoot}`);
     console.log(`   Agents:    ${graph.agentsPath}`);
     console.log(`   Decisions: ${graph.decisionsPath}`);
     console.log(`   Meta:      ${graph.metaRoot}`);
+    console.log(`   Docs:      ${docsDir} (${docsResult.copied} files)`);
+    if (docsResult.errors.length > 0) {
+      docsResult.errors.forEach(e => console.error(`   Warning: ${e}`));
+    }
   }
 
   return 0;

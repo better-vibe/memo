@@ -1,0 +1,12 @@
+[
+  {
+    "id": "pat-fact-immutability-001",
+    "fact": "Facts are never deleted; contradictions resolved via supersession with supersededBy linkage",
+    "category": "rule",
+    "timestamp": "2025-01-31",
+    "source": "src/core/facts.ts and documentation",
+    "status": "active",
+    "confidence": 0.95,
+    "evidence": "supersedeFact function marks old as superseded, links to new fact ID"
+  }
+]

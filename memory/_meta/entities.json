@@ -1,0 +1,9 @@
+{
+  "@better-vibe/memo": "better-vibememo",
+  "Commander": "commander",
+  "Zod": "zod",
+  "Changesets": "changesets",
+  "Atomic File Writes": "atomic-file-writes",
+  "Three-Layer Memory System": "three-layer-memory-system",
+  "Fact Immutability": "fact-immutability"
+}

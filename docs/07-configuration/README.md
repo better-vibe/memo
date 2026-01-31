@@ -9,7 +9,6 @@ my-project/
 ├── memory/
 │   ├── graph/
 │   │   ├── projects/
-│   │   ├── developers/
 │   │   ├── libraries/
 │   │   └── patterns/
 │   └── _meta/
@@ -46,7 +45,6 @@ This file contains **stable rules and constraints** for AI agents.
 ### Layer 1: Knowledge Graph (`~/memory/graph/`)
 Structure:
 - `projects/<project-slug>/summary.md` + `items.json`
-- `developers/<dev-slug>/summary.md` + `items.json`
 - `libraries/<lib-slug>/summary.md` + `items.json`
 - `patterns/<pattern-slug>/summary.md` + `items.json`
 
@@ -122,7 +120,7 @@ Each decision section includes:
 - **Rationale**: Better JSON support, stricter ACID compliance, team expertise
 - **Trade-offs**: Slightly more complex setup, smaller hosting options
 - **Status**: active
-- **Related Facts**: projects/my-app (dependency), developers/alice (expertise)
+- **Related Facts**: projects/my-app (dependency), libraries/postgresql (dependency)
 ```
 
 ## Git Integration

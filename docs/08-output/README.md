@@ -72,15 +72,7 @@ All commands support `--json` flag for machine-readable output.
         "status": "active"
       }
     },
-    {
-      "entity": "developers/alice",
-      "fact": {
-        "id": "dev-alice-003",
-        "fact": "Expert in TypeScript",
-        "category": "expertise",
-        "status": "active"
-      }
-    }
+
   ],
   "total": 2
 }
@@ -113,7 +105,6 @@ All commands support `--json` flag for machine-readable output.
     "total": 12,
     "byType": {
       "projects": 3,
-      "developers": 4,
       "libraries": 3,
       "patterns": 2
     }
@@ -235,7 +226,7 @@ Array of audit entries:
     "timestamp": "2026-01-30T21:30:00Z",
     "operation": "synthesize",
     "source": "memo synthesize --all",
-    "entitiesAffected": ["projects/my-project", "developers/alice"],
+    "entitiesAffected": ["projects/my-project"],
     "factsAdded": 0,
     "status": "ok"
   }
@@ -249,8 +240,7 @@ Name-to-slug cache:
 ```json
 {
   "My Project": "my-project",
-  "TypeScript": "typescript",
-  "Alice Smith": "alice-smith"
+  "TypeScript": "typescript"
 }
 ```
 
@@ -264,13 +254,11 @@ Fact IDs follow a pattern:
 
 Examples:
 - `prj-myproject-001` (project)
-- `dev-alice-003` (developer)
 - `lib-typescript-001` (library)
 - `pat-repository-001` (pattern)
 
 Abbreviations:
 - `prj` — projects
-- `dev` — developers
 - `lib` — libraries
 - `pat` — patterns
 
@@ -284,7 +272,6 @@ Valid fact categories:
 - `architecture` — Architecture decisions
 - `decision` — General decisions
 - `ownership` — Code ownership
-- `expertise` — Developer expertise
 - `bug` — Known bugs
 - `tech_debt` — Technical debt
 - `rule` — Coding rules

@@ -53,7 +53,6 @@ describe('facts', () => {
   describe('entityTypeAbbr', () => {
     it('maps known types', () => {
       expect(entityTypeAbbr('projects')).toBe('proj');
-      expect(entityTypeAbbr('developers')).toBe('dev');
       expect(entityTypeAbbr('libraries')).toBe('lib');
       expect(entityTypeAbbr('patterns')).toBe('pat');
     });

@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { atomicWriteText, atomicWriteJSON } from './facts';
 
-export const ENTITY_TYPES = ['projects', 'developers', 'libraries', 'patterns'] as const;
+export const ENTITY_TYPES = ['projects', 'libraries', 'patterns'] as const;
 export type EntityType = (typeof ENTITY_TYPES)[number];
 
 export function slugify(name: string): string {

@@ -30,6 +30,7 @@
   "files": [
     "src/",
     "bin/",
-    "templates/"
+    "templates/",
+    "src/prompts/"
   ]
 }

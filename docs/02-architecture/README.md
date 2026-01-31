@@ -8,11 +8,11 @@
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
 │  Layer 1: Knowledge Graph (~/memory/graph/)                 │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
-│  │ projects/   │ │ developers/ │ │  libraries/ │           │
-│  │ • summary   │ │ • summary   │ │ • summary   │           │
-│  │ • items     │ │ • items     │ │ • items     │           │
-│  └─────────────┘ └─────────────┘ └─────────────┘           │
+│  ┌─────────────┐ ┌─────────────┐                           │
+│  │ projects/   │ │  libraries/ │                           │
+│  │ • summary   │ │ • summary   │                           │
+│  │ • items     │ │ • items     │                           │
+│  └─────────────┘ └─────────────┘                           │
 │  ┌─────────────┐                                            │
 │  │ patterns/   │                                            │
 │  │ • summary   │                                            │

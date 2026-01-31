@@ -22,7 +22,6 @@ describe('MemoryGraph', () => {
     graph.initialize();
     expect(graph.isInitialized()).toBe(true);
     expect(fs.existsSync(path.join(graph.graphRoot, 'projects'))).toBe(true);
-    expect(fs.existsSync(path.join(graph.graphRoot, 'developers'))).toBe(true);
     expect(fs.existsSync(path.join(graph.graphRoot, 'libraries'))).toBe(true);
     expect(fs.existsSync(path.join(graph.graphRoot, 'patterns'))).toBe(true);
   });

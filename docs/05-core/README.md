@@ -30,7 +30,6 @@ Creates directory structure:
 memory/
 ├── graph/
 │   ├── projects/
-│   ├── developers/
 │   ├── libraries/
 │   └── patterns/
 └── _meta/

@@ -48,52 +48,6 @@ memory/graph/projects/
 │   └── items.json
 ```
 
-## Developers
-
-Team members and their expertise.
-
-### Use Cases
-
-- Track code ownership
-- Record expertise areas
-- Document responsibilities
-- Remember preferences
-
-### Examples
-
-```json
-{
-  "fact": "Expert in PostgreSQL and database optimization",
-  "category": "expertise"
-}
-```
-
-```json
-{
-  "fact": "Owns authentication and authorization modules",
-  "category": "ownership"
-}
-```
-
-```json
-{
-  "fact": "Prefers async/await over callbacks",
-  "category": "preference"
-}
-```
-
-### Storage
-
-```
-memory/graph/developers/
-├── alice-smith/
-│   ├── summary.md
-│   └── items.json
-├── bob-jones/
-│   ├── summary.md
-│   └── items.json
-```
-
 ## Libraries
 
 Dependencies, frameworks, and tools.
@@ -200,13 +154,6 @@ Entities can reference each other in facts:
 {
   "fact": "Uses libraries/typescript for type checking",
   "category": "dependency"
-}
-```
-
-```json
-{
-  "fact": "Implemented by developers/alice-smith",
-  "category": "ownership"
 }
 ```
 

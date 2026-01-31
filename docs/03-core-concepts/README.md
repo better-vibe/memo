@@ -33,8 +33,7 @@ Facts are classified into categories:
 | `constraint` | Technical constraints | "Must support IE11" |
 | `architecture` | Architecture decisions | "Uses microservices" |
 | `decision` | General decisions | "Chose PostgreSQL over MySQL" |
-| `ownership` | Code ownership | "Auth module owned by Alice" |
-| `expertise` | Developer skills | "Bob is expert in Rust" |
+| `ownership` | Code ownership | "Auth module owned by team" |
 | `bug` | Known bugs | "Issue #123 causes crashes" |
 | `tech_debt` | Technical debt | "Needs refactoring" |
 | `rule` | Project rules | "Always use strict mode" |
@@ -49,7 +48,6 @@ A named object that facts can be attached to.
 | Type | Description | Example Slug |
 |------|-------------|--------------|
 | `projects` | Software projects | `my-web-app` |
-| `developers` | Team members | `alice-smith` |
 | `libraries` | Dependencies | `typescript` |
 | `patterns` | Reusable patterns | `repository-pattern` |
 
@@ -130,7 +128,7 @@ When extracting facts from input, the system generates proposals:
 
 ```typescript
 interface ExtractionProposal {
-  entityType: 'projects' | 'developers' | 'libraries' | 'patterns';
+  entityType: 'projects' | 'libraries' | 'patterns';
   entityName: string;
   fact: string;
   category: FactCategory;
@@ -145,5 +143,5 @@ Proposals are validated against the schema before being added to the graph.
 
 ## Next Steps
 
-- [Entity Types](../04-entity-types) — Projects, developers, libraries, patterns
+- [Entity Types](../04-entity-types) — Projects, libraries, patterns
 - [Core Engine](../05-core) — Implementation details

@@ -64,7 +64,6 @@ export function generateId(entityTypeAbbr: string, slug: string, existingFacts: 
 export function entityTypeAbbr(entityType: string): string {
   const map: Record<string, string> = {
     projects: 'proj',
-    developers: 'dev',
     libraries: 'lib',
     patterns: 'pat',
   };

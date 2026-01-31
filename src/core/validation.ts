@@ -24,7 +24,7 @@ export const FactItemSchema = z.object({
 export const FactItemsArraySchema = z.array(FactItemSchema);
 
 export const ExtractionProposalSchema = z.object({
-  entityType: z.enum(['projects', 'developers', 'libraries', 'patterns']),
+  entityType: z.enum(['projects', 'libraries', 'patterns']),
   entityName: z.string().min(1),
   fact: z.string().min(1),
   category: FactCategoryEnum,

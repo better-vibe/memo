@@ -1,0 +1,12 @@
+[
+  {
+    "id": "lib-commander-001",
+    "fact": "Version 12.1.0 used for CLI command parsing",
+    "category": "version",
+    "timestamp": "2025-01-31",
+    "source": "package.json analysis",
+    "status": "active",
+    "confidence": 1,
+    "evidence": "package.json dependencies: commander ^12.1.0"
+  }
+]

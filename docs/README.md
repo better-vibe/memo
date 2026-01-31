@@ -45,7 +45,7 @@ memo search "TypeScript"
 - [01-product](./docs/01-product) — Product overview and features
 - [02-architecture](./docs/02-architecture) — System architecture
 - [03-core-concepts](./docs/03-core-concepts) — Core concepts and data model
-- [04-entity-types](./docs/04-entity-types) — Entity types (projects, developers, libraries, patterns)
+- [04-entity-types](./docs/04-entity-types) — Entity types (projects, libraries, patterns)
 - [05-core](./docs/05-core) — Core engine internals
 - [06-cli](./docs/06-cli) — CLI commands reference
 - [07-configuration](./docs/07-configuration) — Configuration and setup
