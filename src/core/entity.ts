@@ -5,14 +5,67 @@ import { atomicWriteText, atomicWriteJSON } from './facts';
 export const ENTITY_TYPES = ['projects', 'libraries', 'patterns'] as const;
 export type EntityType = (typeof ENTITY_TYPES)[number];
 
+/**
+ * Convert a name to a URL-friendly slug
+ * Handles org prefixes (e.g., @org/repo) gracefully
+ * 
+ * Examples:
+ * - "My Project" → "my-project"
+ * - "@better-vibe/memo" → "better-vibe-memo"
+ * - "React" → "react"
+ */
 export function slugify(name: string): string {
   return name
     .toLowerCase()
     .trim()
+    // Handle org prefixes: @org/repo → org-repo
+    .replace(/^@/, '')
+    .replace(/\/+/g, '-')
     .replace(/[\s_]+/g, '-')
     .replace(/[^a-z0-9-]/g, '')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '');
+}
+
+/**
+ * Get a display name from a slug for use in summaries
+ * Converts dash-separated words to title case
+ * 
+ * Examples:
+ * - "better-vibe-memo" → "Better Vibe Memo"
+ * - "my-project" → "My Project"
+ */
+export function displayNameFromSlug(slug: string): string {
+  return slug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+/**
+ * Create a clean display name from original name
+ * Preserves org prefixes and formatting
+ * 
+ * Examples:
+ * - "@better-vibe/memo" → "@better-vibe/memo"
+ * - "my-project" → "My Project"
+ * - "My Project" → "My Project"
+ */
+export function formatDisplayName(name: string): string {
+  const trimmed = name.trim();
+  
+  // If it has an org prefix, preserve it
+  if (trimmed.startsWith('@')) {
+    return trimmed;
+  }
+  
+  // If already title case or has spaces, return as-is
+  if (/[A-Z]/.test(trimmed) && /\s/.test(trimmed)) {
+    return trimmed;
+  }
+  
+  // Otherwise, convert from slug-like format
+  return displayNameFromSlug(trimmed);
 }
 
 export function entityPath(graphRoot: string, entityType: EntityType, slug: string): string {

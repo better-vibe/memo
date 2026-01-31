@@ -27,6 +27,6 @@ describe('slugify', () => {
   });
 
   it('handles names with dots and @', () => {
-    expect(slugify('@better-vibe/memo')).toBe('better-vibememo');
+    expect(slugify('@better-vibe/memo')).toBe('better-vibe-memo');
   });
 });

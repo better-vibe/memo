@@ -1,6 +1,6 @@
 [
   {
-    "id": "proj-better-vibememo-001",
+    "id": "proj-better-vibe-memo-001",
     "fact": "CLI tool for three-layer technical knowledge graph memory system",
     "category": "status",
     "timestamp": "2025-01-31",
@@ -10,17 +10,18 @@
     "evidence": "package.json: description field"
   },
   {
-    "id": "proj-better-vibememo-002",
+    "id": "proj-better-vibe-memo-002",
     "fact": "Uses TypeScript 5.9.3 with strict mode enabled",
     "category": "dependency",
     "timestamp": "2025-01-31",
     "source": "package.json and tsconfig.json analysis",
-    "status": "active",
+    "status": "superseded",
     "confidence": 1,
-    "evidence": "package.json devDependencies: typescript ^5.9.3, tsconfig.json: strict: true"
+    "evidence": "package.json devDependencies: typescript ^5.9.3, tsconfig.json: strict: true",
+    "supersededBy": "proj-better-vibe-memo-008"
   },
   {
-    "id": "proj-better-vibememo-003",
+    "id": "proj-better-vibe-memo-003",
     "fact": "Uses Bun as runtime and build tool",
     "category": "architecture",
     "timestamp": "2025-01-31",
@@ -30,7 +31,7 @@
     "evidence": "package.json scripts use 'bun' command, devDependencies include @types/bun"
   },
   {
-    "id": "proj-better-vibememo-004",
+    "id": "proj-better-vibe-memo-004",
     "fact": "ES Module format (type: module)",
     "category": "constraint",
     "timestamp": "2025-01-31",
@@ -40,7 +41,7 @@
     "evidence": "package.json: type: module"
   },
   {
-    "id": "proj-better-vibememo-005",
+    "id": "proj-better-vibe-memo-005",
     "fact": "Has 11 CLI commands: init, extract, synthesize, view, search, edit, verify, status, export, import, help-agent, sync-docs",
     "category": "status",
     "timestamp": "2025-01-31",
@@ -50,7 +51,7 @@
     "evidence": "cli.ts defines 12 commands via program.command() calls"
   },
   {
-    "id": "proj-better-vibememo-006",
+    "id": "proj-better-vibe-memo-006",
     "fact": "Supports 3 entity types: projects, libraries, patterns",
     "category": "architecture",
     "timestamp": "2025-01-31",
@@ -58,5 +59,37 @@
     "status": "active",
     "confidence": 1,
     "evidence": "ENTITY_TYPES = ['projects', 'libraries', 'patterns']"
+  },
+  {
+    "id": "proj-better-vibe-memo-007",
+    "fact": "Implemented draft accumulation feature request based on AI agent self-reflection",
+    "category": "status",
+    "timestamp": "2025-01-31",
+    "source": "Development session",
+    "status": "active",
+    "confidence": 0.95,
+    "evidence": "Added pain points section to AGENTS.md with proposed draft API solution",
+    "links": [
+      {
+        "entityType": "patterns",
+        "slug": "ai-agent-self",
+        "relation": "extends"
+      }
+    ]
+  },
+  {
+    "id": "proj-better-vibe-memo-008",
+    "fact": "Uses TypeScript 5.9",
+    "category": "dependency",
+    "timestamp": "2025-01-31",
+    "source": "test",
+    "status": "active",
+    "links": [
+      {
+        "entityType": "libraries",
+        "slug": "typescript-5",
+        "relation": "uses"
+      }
+    ]
   }
 ]

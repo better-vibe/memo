@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { EntityType, ENTITY_TYPES, slugify, entityExists, createEntity, listEntities, updateEntityCache } from './entity';
+import { EntityType, ENTITY_TYPES, slugify, entityExists, createEntity, listEntities, updateEntityCache, formatDisplayName } from './entity';
 import { FactItem, ExtractionProposal } from './validation';
-import { readFacts, writeFacts, generateId, entityTypeAbbr, isDuplicate, findContradictions, supersedeFact, getActiveFacts, atomicWriteText } from './facts';
+import { readFacts, writeFacts, generateId, entityTypeAbbr, isDuplicate, findContradictions, supersedeFact, getActiveFacts, atomicWriteText, detectLinksFromFact, createReverseLink } from './facts';
 import { appendAudit } from './audit';
 import * as entityMod from './entity';
 
@@ -48,7 +48,8 @@ export class MemoryGraph {
 
   createEntity(entityType: EntityType, name: string, description?: string): string {
     const slug = slugify(name);
-    createEntity(this.graphRoot, entityType, slug, name, description);
+    const displayName = formatDisplayName(name);
+    createEntity(this.graphRoot, entityType, slug, displayName, description);
     updateEntityCache(this.metaRoot, name, slug);
     return slug;
   }
@@ -104,6 +105,12 @@ export class MemoryGraph {
         factsSuperseded++;
       }
 
+      // Auto-detect links if not explicitly provided
+      let links = proposal.links;
+      if (!links) {
+        links = detectLinksFromFact(proposal.fact);
+      }
+
       const newFact: FactItem = {
         id,
         fact: proposal.fact,
@@ -113,7 +120,15 @@ export class MemoryGraph {
         status: 'active',
         ...(proposal.confidence !== undefined && { confidence: proposal.confidence }),
         ...(proposal.evidence !== undefined && { evidence: proposal.evidence }),
+        ...(links && links.length > 0 && { links }),
       };
+
+      // Create bidirectional reverse links
+      if (links && links.length > 0) {
+        for (const link of links) {
+          createReverseLink(this.graphRoot, entityType, slug, link, newFact.id);
+        }
+      }
 
       facts.push(newFact);
       writeFacts(itemsFile, facts);

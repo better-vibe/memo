@@ -1,9 +1,12 @@
 {
-  "@better-vibe/memo": "better-vibememo",
+  "@better-vibe/memo": "better-vibe-memo",
   "Commander": "commander",
   "Zod": "zod",
   "Changesets": "changesets",
   "Atomic File Writes": "atomic-file-writes",
   "Three-Layer Memory System": "three-layer-memory-system",
-  "Fact Immutability": "fact-immutability"
+  "Fact Immutability": "fact-immutability",
+  "demo-app": "demo-app",
+  "AI Agent Workflow Integration": "ai-agent-workflow-integration",
+  "AI Agent Integration": "ai-agent-integration"
 }

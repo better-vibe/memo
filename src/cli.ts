@@ -11,6 +11,8 @@ import { exportCommand } from './commands/export';
 import { importCommand } from './commands/import';
 import { helpAgentCommand } from './commands/help-agent';
 import { syncDocsCommand } from './commands/sync-docs';
+import { queryCommand } from './commands/query';
+import { draftCommand } from './commands/draft';
 
 const program = new Command();
 
@@ -173,7 +175,40 @@ addGlobalOpts(
   process.exitCode = await syncDocsCommand(opts);
 });
 
+addGlobalOpts(
+  program
+    .command('query')
+    .description('Query facts with filters and search')
+    .option('--entity-type <type>', 'Filter by entity type (projects,libraries,patterns)')
+    .option('--category <cat>', 'Filter by category (dependency,version,constraint,architecture,decision,ownership,expertise,bug,tech_debt,rule,status)')
+    .option('--status <status>', 'Filter by status (active,superseded)')
+    .option('--source <pattern>', 'Filter by source pattern (regex)')
+    .option('--query <text>', 'Search fact text (regex)')
+    .option('--evidence-contains <text>', 'Search evidence field (regex)')
+    .option('--related-to <entity>', 'Query entities related to target (type/slug)')
+    .option('--where <clause>', 'Compound where clause (e.g., confidence>0.8, category=dependency)', collect, [])
+).action(async (opts) => {
+  process.exitCode = await queryCommand(opts);
+});
+
+addGlobalOpts(
+  program
+    .command('draft')
+    .description('Queue facts for later extraction (AI agent workflow)')
+    .option('--add <fact>', 'Add a fact to the draft queue')
+    .option('--list', 'List all queued drafts')
+    .option('--flush', 'Extract all queued drafts to knowledge graph')
+    .option('--clear', 'Clear draft queue without extracting')
+).action(async (opts) => {
+  process.exitCode = await draftCommand(opts);
+});
+
 program.parseAsync(process.argv).catch((err) => {
   console.error(err.message);
   process.exitCode = 1;
 });
+
+// Helper to collect multiple --where arguments
+function collect(value: string, previous: string[]): string[] {
+  return previous.concat([value]);
+}

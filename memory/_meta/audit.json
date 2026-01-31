@@ -4,7 +4,7 @@
     "operation": "extract",
     "source": "stdin",
     "entitiesAffected": [
-      "projects/better-vibememo",
+      "projects/better-vibe-memo",
       "libraries/commander",
       "libraries/zod",
       "libraries/changesets",
@@ -17,10 +17,11 @@
     "status": "ok"
   },
   {
+    "timestamp": "2026-01-31T21:54:39.824Z",
     "operation": "synthesize",
     "source": "cli",
     "entitiesAffected": [
-      "projects/better-vibememo",
+      "projects/better-vibe-memo",
       "libraries/zod",
       "libraries/commander",
       "libraries/changesets",
@@ -29,7 +30,114 @@
       "patterns/atomic-file-writes"
     ],
     "factsAdded": 0,
-    "status": "ok",
-    "timestamp": "2026-01-31T21:54:39.824Z"
+    "status": "ok"
+  },
+  {
+    "timestamp": "2026-01-31T22:47:22.256Z",
+    "operation": "extract",
+    "source": "stdin",
+    "entitiesAffected": [
+      "projects/demo-app"
+    ],
+    "factsAdded": 1,
+    "factsSuperseded": 0,
+    "status": "ok"
+  },
+  {
+    "timestamp": "2026-01-31T22:58:10.213Z",
+    "operation": "extract",
+    "source": "stdin",
+    "entitiesAffected": [
+      "patterns/ai-agent-workflow-integration"
+    ],
+    "factsAdded": 1,
+    "factsSuperseded": 0,
+    "status": "ok"
+  },
+  {
+    "timestamp": "2026-01-31T22:59:17.108Z",
+    "operation": "extract",
+    "source": "stdin",
+    "entitiesAffected": [
+      "patterns/ai-agent-integration",
+      "projects/better-vibe-memo"
+    ],
+    "factsAdded": 4,
+    "factsSuperseded": 0,
+    "status": "ok"
+  },
+  {
+    "timestamp": "2026-01-31T22:59:19.761Z",
+    "operation": "synthesize",
+    "source": "cli",
+    "entitiesAffected": [
+      "projects/better-vibe-memo",
+      "projects/demo-app",
+      "libraries/zod",
+      "libraries/commander",
+      "libraries/changesets",
+      "patterns/ai-agent-workflow-integration",
+      "patterns/ai-agent-integration",
+      "patterns/fact-immutability",
+      "patterns/three-layer-memory-system",
+      "patterns/atomic-file-writes"
+    ],
+    "factsAdded": 0,
+    "status": "ok"
+  },
+  {
+    "timestamp": "2026-01-31T23:01:50.486Z",
+    "operation": "extract",
+    "source": "draft-flush",
+    "entitiesAffected": [
+      "projects/unknown",
+      "patterns/unknown"
+    ],
+    "factsAdded": 2,
+    "factsSuperseded": 0,
+    "status": "ok"
+  },
+  {
+    "timestamp": "2026-01-31T23:03:21.617Z",
+    "operation": "extract",
+    "source": "draft-flush",
+    "entitiesAffected": [
+      "projects/unknown"
+    ],
+    "factsAdded": 1,
+    "factsSuperseded": 0,
+    "status": "ok"
+  },
+  {
+    "timestamp": "2026-01-31T23:03:26.245Z",
+    "operation": "synthesize",
+    "source": "cli",
+    "entitiesAffected": [
+      "projects/better-vibe-memo",
+      "projects/unknown",
+      "projects/demo-app",
+      "libraries/zod",
+      "libraries/commander",
+      "libraries/changesets",
+      "patterns/ai-agent-workflow-integration",
+      "patterns/ai-agent-integration",
+      "patterns/fact-immutability",
+      "patterns/three-layer-memory-system",
+      "patterns/atomic-file-writes",
+      "patterns/unknown"
+    ],
+    "factsAdded": 0,
+    "status": "ok"
+  },
+  {
+    "timestamp": "2026-01-31T23:21:26.409Z",
+    "operation": "extract",
+    "source": "stdin",
+    "entitiesAffected": [
+      "projects/better-vibe-memo"
+    ],
+    "factsAdded": 1,
+    "factsSuperseded": 1,
+    "status": "ok"
   }
 ]

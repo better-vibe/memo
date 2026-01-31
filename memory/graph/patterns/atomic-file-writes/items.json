@@ -8,5 +8,20 @@
     "status": "active",
     "confidence": 0.95,
     "evidence": "atomicWriteJSON and atomicWriteText functions use .tmp- prefix then fs.renameSync"
+  },
+  {
+    "id": "link-patterns-unknown-1769900510485",
+    "fact": "implemented_by patterns/unknown",
+    "category": "dependency",
+    "timestamp": "2026-01-31",
+    "source": "auto-link",
+    "status": "active",
+    "links": [
+      {
+        "entityType": "patterns",
+        "slug": "unknown",
+        "relation": "implemented_by"
+      }
+    ]
   }
 ]

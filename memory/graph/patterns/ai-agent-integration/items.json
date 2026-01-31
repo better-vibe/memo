@@ -1,0 +1,39 @@
+[
+  {
+    "id": "pat-ai-agent-integration-001",
+    "fact": "AI agents experience context switching overhead when using memo during coding",
+    "category": "architecture",
+    "timestamp": "2025-01-31",
+    "source": "AGENTS.md pain point documentation",
+    "status": "active",
+    "confidence": 0.95,
+    "evidence": "I (AI agent) admitted to forgetting to use memo extract during 5 phases of development",
+    "links": [
+      {
+        "entityType": "libraries",
+        "slug": "memo-during-coding",
+        "relation": "uses"
+      }
+    ]
+  },
+  {
+    "id": "pat-ai-agent-integration-002",
+    "fact": "Draft accumulation API needed to queue facts without breaking coding flow",
+    "category": "architecture",
+    "timestamp": "2025-01-31",
+    "source": "AGENTS.md proposed solution",
+    "status": "active",
+    "confidence": 0.9,
+    "evidence": "Pain point: had insights while coding but no way to queue them for later extraction"
+  },
+  {
+    "id": "pat-ai-agent-integration-003",
+    "fact": "Manual translation from natural analysis to JSON is a barrier to adoption",
+    "category": "constraint",
+    "timestamp": "2025-01-31",
+    "source": "AGENTS.md pain point documentation",
+    "status": "active",
+    "confidence": 0.9,
+    "evidence": "Converting 'Uses Zod' insight to structured JSON was described as tedious"
+  }
+]

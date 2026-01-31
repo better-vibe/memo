@@ -1,6 +1,8 @@
 import { MemoryGraph } from '../core/graph';
-import { ENTITY_TYPES } from '../core/entity';
+import { ENTITY_TYPES, displayNameFromSlug } from '../core/entity';
 import { appendAudit } from '../core/audit';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export interface SynthesizeOptions {
   project: string;
@@ -11,10 +13,25 @@ export interface SynthesizeOptions {
   dryRun: boolean;
 }
 
-function generateSummary(entityType: string, slug: string, facts: import('../core/validation').FactItem[]): string {
+function generateSummary(entityType: string, slug: string, facts: import('../core/validation').FactItem[], graphRoot: string): string {
   const active = facts.filter(f => f.status === 'active');
-  const displayName = slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   const today = new Date().toISOString().split('T')[0];
+  
+  // Try to find original display name from cache
+  let displayName = displayNameFromSlug(slug);
+  const cachePath = path.join(graphRoot, '..', '_meta', 'entities.json');
+  if (fs.existsSync(cachePath)) {
+    try {
+      const cache: Record<string, string> = JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
+      // Find the original name that maps to this slug
+      for (const [originalName, cachedSlug] of Object.entries(cache)) {
+        if (cachedSlug === slug) {
+          displayName = originalName;
+          break;
+        }
+      }
+    } catch { /* ignore */ }
+  }
 
   let summary = `# ${displayName}\n\n`;
 
@@ -90,7 +107,7 @@ export async function synthesizeCommand(options: SynthesizeOptions): Promise<num
     const facts = graph.readFacts(type, slug);
     if (facts.length === 0) continue;
 
-    const summary = generateSummary(type, slug, facts);
+    const summary = generateSummary(type, slug, facts, graph.graphRoot);
 
     if (options.dryRun) {
       if (!options.json) {

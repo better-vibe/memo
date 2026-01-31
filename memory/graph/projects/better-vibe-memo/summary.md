@@ -3,6 +3,7 @@
 ## Status
 - CLI tool for three-layer technical knowledge graph memory system
 - Has 11 CLI commands: init, extract, synthesize, view, search, edit, verify, status, export, import, help-agent, sync-docs
+- Implemented draft accumulation feature request based on AI agent self-reflection
 
 ## Dependency
 - Uses TypeScript 5.9.3 with strict mode enabled
