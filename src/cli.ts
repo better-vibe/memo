@@ -3,7 +3,6 @@ import { initCommand } from './commands/init';
 import { extractCommand } from './commands/extract';
 import { synthesizeCommand } from './commands/synthesize';
 import { viewCommand } from './commands/view';
-import { searchCommand } from './commands/search';
 import { editCommand } from './commands/edit';
 import { verifyCommand } from './commands/verify';
 import { statusCommand } from './commands/status';
@@ -13,6 +12,7 @@ import { helpAgentCommand } from './commands/help-agent';
 import { syncDocsCommand } from './commands/sync-docs';
 import { queryCommand } from './commands/query';
 import { draftCommand } from './commands/draft';
+import { helpCommand } from './commands/help';
 
 const program = new Command();
 
@@ -106,16 +106,6 @@ addGlobalOpts(
 
 addGlobalOpts(
   program
-    .command('search <query>')
-    .description('Query facts across graph')
-    .option('--category <cat>', 'Filter by category')
-    .option('--entity-type <type>', 'Filter by entity type')
-).action(async (query, opts) => {
-  process.exitCode = await searchCommand({ ...opts, query });
-});
-
-addGlobalOpts(
-  program
     .command('edit <entity>')
     .description('Open entity summary in $EDITOR')
 ).action(async (entity, opts) => {
@@ -201,6 +191,14 @@ addGlobalOpts(
     .option('--clear', 'Clear draft queue without extracting')
 ).action(async (opts) => {
   process.exitCode = await draftCommand(opts);
+});
+
+addGlobalOpts(
+  program
+    .command('help [command]')
+    .description('Show help information')
+).action(async (command, opts) => {
+  process.exitCode = await helpCommand({ ...opts, command });
 });
 
 program.parseAsync(process.argv).catch((err) => {

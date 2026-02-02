@@ -15,7 +15,7 @@ export { initCommand } from './commands/init';
 export { extractCommand } from './commands/extract';
 export { synthesizeCommand } from './commands/synthesize';
 export { viewCommand } from './commands/view';
-export { searchCommand } from './commands/search';
+
 export { editCommand } from './commands/edit';
 export { verifyCommand } from './commands/verify';
 export { statusCommand } from './commands/status';
@@ -25,3 +25,5 @@ export { helpAgentCommand } from './commands/help-agent';
 export { syncDocsCommand } from './commands/sync-docs';
 export { queryCommand } from './commands/query';
 export { draftCommand } from './commands/draft';
+export { helpCommand } from './commands/help';
+

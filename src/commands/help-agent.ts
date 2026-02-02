@@ -61,8 +61,8 @@ memo verify --json
 # View entity
 memo view projects/my-project --json
 
-# Search facts
-memo search "fastify" --json
+# Query facts
+memo query --category dependency --json
 
 # Export backup
 memo export --output backup.json
