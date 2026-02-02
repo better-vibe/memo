@@ -139,5 +139,16 @@
     "factsAdded": 1,
     "factsSuperseded": 1,
     "status": "ok"
+  },
+  {
+    "operation": "extract",
+    "source": "stdin",
+    "entitiesAffected": [
+      "projects/better-vibe-memo"
+    ],
+    "factsAdded": 1,
+    "factsSuperseded": 0,
+    "status": "ok",
+    "timestamp": "2026-02-02T20:58:57.790Z"
   }
 ]

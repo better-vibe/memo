@@ -19,7 +19,7 @@ const program = new Command();
 program
   .name('memo')
   .description('Three-layer technical knowledge graph CLI')
-  .version('0.1.0');
+  .version('1.1.0');
 
 // Global hooks to implement behavior for global options like --verbose, --no-edit, and --force.
 program.hook('preAction', (thisCommand, actionCommand) => {

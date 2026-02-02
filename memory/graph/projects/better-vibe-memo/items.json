@@ -16,9 +16,9 @@
     "timestamp": "2025-01-31",
     "source": "package.json and tsconfig.json analysis",
     "status": "superseded",
+    "supersededBy": "proj-better-vibe-memo-008",
     "confidence": 1,
-    "evidence": "package.json devDependencies: typescript ^5.9.3, tsconfig.json: strict: true",
-    "supersededBy": "proj-better-vibe-memo-008"
+    "evidence": "package.json devDependencies: typescript ^5.9.3, tsconfig.json: strict: true"
   },
   {
     "id": "proj-better-vibe-memo-003",
@@ -91,5 +91,15 @@
         "relation": "uses"
       }
     ]
+  },
+  {
+    "id": "proj-better-vibe-memo-009",
+    "fact": "Version reset to 1.1.0 from 2.0.0 to maintain 1.x line",
+    "category": "version",
+    "timestamp": "2026-02-02",
+    "source": "version correction",
+    "status": "active",
+    "confidence": 1,
+    "evidence": "Deleted 2.0.0 from GitHub registry, updated package.json and CLI to 1.1.0"
   }
 ]
