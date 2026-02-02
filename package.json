@@ -11,7 +11,7 @@
   "scripts": {
     "build": "bun build src/cli.ts --outdir dist --target bun",
     "test": "bun test",
-    "lint": "bun x tsc --noEmit",
+    "typecheck": "bun x tsc --noEmit",
     "prepublishOnly": "bun run build",
     "release:add": "changeset add --open"
   },
