@@ -1,6 +1,6 @@
 {
   "name": "@better-vibe/memo",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "CLI for three-layer technical knowledge graph memory system",
   "type": "module",
   "main": "src/index.ts",
@@ -15,7 +15,13 @@
     "prepublishOnly": "bun run build",
     "release:add": "changeset add --open"
   },
-  "keywords": ["memory", "knowledge-graph", "cli", "agent", "ai"],
+  "keywords": [
+    "memory",
+    "knowledge-graph",
+    "cli",
+    "agent",
+    "ai"
+  ],
   "author": "Better Vibe",
   "license": "MIT",
   "dependencies": {
