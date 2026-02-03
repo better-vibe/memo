@@ -1,6 +1,6 @@
 {
   "name": "@better-vibe/memo",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "CLI for three-layer technical knowledge graph memory system",
   "type": "module",
   "main": "src/index.ts",

@@ -1,5 +1,11 @@
 # @better-vibe/memo
 
+## 1.2.0
+
+### Minor Changes
+
+- ae42980: publish version
+
 ## 2.0.0
 
 ### Major Changes
