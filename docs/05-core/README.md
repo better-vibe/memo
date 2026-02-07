@@ -84,9 +84,11 @@ const result = graph.addFacts(proposals, 'manual-entry');
 
 Features:
 - Auto-creates entities if missing
-- Handles deduplication
+- Handles deduplication (exact and fuzzy via Jaccard similarity)
 - Detects contradictions
 - Marks superseded facts
+- Auto-detects relationship links from fact text
+- Creates bidirectional reverse links
 - Appends to audit log
 
 ### Verification
@@ -100,6 +102,8 @@ Checks:
 - No duplicate fact IDs
 - Superseded facts link to valid IDs
 - Summary files exist
+- Active facts past their `expiresAt` date (warning)
+- Near-duplicate active facts above 80% Jaccard similarity (warning)
 
 ## Entity Module
 
@@ -155,10 +159,16 @@ writeFacts('/path/to/items.json', facts);
 // Utilities
 generateId('prj', 'my-project', facts);      // Generate unique ID
 entityTypeAbbr('projects');                  // 'prj'
-isDuplicate(facts, 'Uses TypeScript');       // Check for duplicates
+isDuplicate(facts, 'Uses TypeScript');       // Check for exact + fuzzy duplicates
+isDuplicate(facts, 'Uses TypeScript', 0.9);  // Custom similarity threshold
 findContradictions(facts, 'dependency', 'Uses React 18');
 supersedeFact(facts, 'prj-myproject-001', 'prj-myproject-002');
 getActiveFacts(facts);                       // Filter active only
+jaccardSimilarity('Uses React 18', 'Uses React v18'); // Word-level similarity (0-1)
+
+// Link detection
+detectLinksFromFact('Uses React for frontend');  // Auto-detect entity links
+createReverseLink(graphRoot, 'projects', 'my-app', link, factId); // Bidirectional
 ```
 
 ## Audit Module
@@ -214,10 +224,14 @@ Input → Extract Proposals → Validate → MemoryGraph.addFacts()
                                            ↓
                     ┌──────────────────────┼──────────────────────┐
                     ↓                      ↓                      ↓
-              Auto-create          Check duplicates        Detect contradictions
-              entities                                      ↓
+              Auto-create       Check duplicates (exact    Detect contradictions
+              entities          + fuzzy Jaccard)                ↓
                     ↓                      ↓              Supersede old
                     └──────────────────────┼──────────────────────┘
+                                           ↓
+                                    Auto-detect links
+                                           ↓
+                                    Create reverse links
                                            ↓
                                     Write items.json
                                            ↓

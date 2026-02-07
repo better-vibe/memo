@@ -13,6 +13,10 @@ export interface QueryOptions {
   // Text search
   query?: string;
   evidenceContains?: string;
+  // Tag filter
+  tag?: string;
+  // Exclude expired facts
+  excludeExpired?: boolean;
   // Related entities
   relatedTo?: string;
   // Compound query (AND logic)
@@ -167,6 +171,25 @@ function buildFilterFunction(options: QueryOptions): (fact: FactItem, type: Enti
     filters.push((fact) => fact.evidence ? evidencePattern.test(fact.evidence) : false);
   }
 
+  // Tag filter
+  if (options.tag) {
+    const requiredTags = options.tag.split(',').map(t => t.trim().toLowerCase());
+    filters.push((fact) => {
+      if (!fact.tags || fact.tags.length === 0) return false;
+      const factTags = fact.tags.map(t => t.toLowerCase());
+      return requiredTags.every(rt => factTags.includes(rt));
+    });
+  }
+
+  // Exclude expired facts
+  if (options.excludeExpired) {
+    const today = new Date().toISOString().split('T')[0];
+    filters.push((fact) => {
+      if (fact.expiresAt && fact.expiresAt < today) return false;
+      return true;
+    });
+  }
+
   // Compound where clauses
   if (options.where && options.where.length > 0) {
     for (const whereClause of options.where) {
@@ -277,6 +300,8 @@ function buildQueryDescription(options: QueryOptions): string {
   if (options.source) parts.push(`source=${options.source}`);
   if (options.query) parts.push(`query="${options.query}"`);
   if (options.evidenceContains) parts.push(`evidence="${options.evidenceContains}"`);
+  if (options.tag) parts.push(`tag=${options.tag}`);
+  if (options.excludeExpired) parts.push(`excludeExpired=true`);
   if (options.relatedTo) parts.push(`relatedTo=${options.relatedTo}`);
   if (options.where) parts.push(...options.where.map(w => `where(${w})`));
   

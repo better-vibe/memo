@@ -12,6 +12,7 @@ import { helpAgentCommand } from './commands/help-agent';
 import { syncDocsCommand } from './commands/sync-docs';
 import { queryCommand } from './commands/query';
 import { draftCommand } from './commands/draft';
+import { contextCommand } from './commands/context';
 import { helpCommand } from './commands/help';
 
 const program = new Command();
@@ -125,6 +126,7 @@ addGlobalOpts(
     .command('status')
     .description('Show graph state and audit log')
     .option('--audit', 'Show audit log', false)
+    .option('--detailed', 'Show category breakdown, entity types, and link statistics', false)
 ).action(async (opts) => {
   process.exitCode = await statusCommand(opts);
 });
@@ -175,6 +177,8 @@ addGlobalOpts(
     .option('--source <pattern>', 'Filter by source pattern (regex)')
     .option('--query <text>', 'Search fact text (regex)')
     .option('--evidence-contains <text>', 'Search evidence field (regex)')
+    .option('--tag <tags>', 'Filter by tags (comma-separated, AND logic)')
+    .option('--exclude-expired', 'Exclude facts past their expiresAt date', false)
     .option('--related-to <entity>', 'Query entities related to target (type/slug)')
     .option('--where <clause>', 'Compound where clause (e.g., confidence>0.8, category=dependency)', collect, [])
 ).action(async (opts) => {
@@ -191,6 +195,20 @@ addGlobalOpts(
     .option('--clear', 'Clear draft queue without extracting')
 ).action(async (opts) => {
   process.exitCode = await draftCommand(opts);
+});
+
+addGlobalOpts(
+  program
+    .command('context')
+    .description('Generate AI-optimized context dump for session startup')
+    .option('--entity-type <type>', 'Filter to specific entity type')
+    .option('--entity <path>', 'Focus on a specific entity (type/slug)')
+    .option('--max-facts <n>', 'Maximum facts per entity')
+    .option('--compact', 'Compact output (one line per fact)', false)
+    .option('--include-decisions', 'Include DECISIONS.md content', false)
+    .option('--include-agents', 'Include AGENTS.md content', false)
+).action(async (opts) => {
+  process.exitCode = await contextCommand(opts);
 });
 
 addGlobalOpts(

@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { EntityType, ENTITY_TYPES, slugify, entityExists, createEntity, listEntities, updateEntityCache, formatDisplayName } from './entity';
 import { FactItem, ExtractionProposal } from './validation';
-import { readFacts, writeFacts, generateId, entityTypeAbbr, isDuplicate, findContradictions, supersedeFact, getActiveFacts, atomicWriteText, detectLinksFromFact, createReverseLink } from './facts';
+import { readFacts, writeFacts, generateId, entityTypeAbbr, isDuplicate, findContradictions, supersedeFact, getActiveFacts, atomicWriteText, detectLinksFromFact, createReverseLink, jaccardSimilarity } from './facts';
 import { appendAudit } from './audit';
 import * as entityMod from './entity';
 
@@ -156,6 +156,7 @@ export class MemoryGraph {
   verify(): { valid: boolean; errors: string[]; warnings: string[] } {
     const errors: string[] = [];
     const warnings: string[] = [];
+    const today = new Date().toISOString().split('T')[0];
 
     for (const { type, slug } of this.listEntities()) {
       // Check items.json validity
@@ -174,6 +175,26 @@ export class MemoryGraph {
         const dupes = ids.filter((id, i) => ids.indexOf(id) !== i);
         if (dupes.length > 0) {
           errors.push(`${type}/${slug}: duplicate fact IDs: ${dupes.join(', ')}`);
+        }
+
+        // Check for expired facts still marked active
+        for (const f of facts) {
+          if (f.status === 'active' && f.expiresAt && f.expiresAt < today) {
+            warnings.push(`${type}/${slug}: fact ${f.id} expired on ${f.expiresAt} but still active`);
+          }
+        }
+
+        // Check for near-duplicate active facts
+        const activeFacts = facts.filter(f => f.status === 'active');
+        for (let i = 0; i < activeFacts.length; i++) {
+          for (let j = i + 1; j < activeFacts.length; j++) {
+            const similarity = jaccardSimilarity(activeFacts[i].fact, activeFacts[j].fact);
+            if (similarity > 0.8) {
+              warnings.push(
+                `${type}/${slug}: potential duplicate facts (${Math.round(similarity * 100)}% similar): ${activeFacts[i].id} and ${activeFacts[j].id}`
+              );
+            }
+          }
         }
       } catch (err: any) {
         errors.push(`${type}/${slug}: ${err.message}`);

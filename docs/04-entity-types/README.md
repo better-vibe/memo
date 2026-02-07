@@ -1,6 +1,6 @@
 # Entity Types
 
-memo organizes knowledge into four entity types. Each type has specific use cases and conventions.
+memo organizes knowledge into three entity types. Each type has specific use cases and conventions.
 
 ## Projects
 
