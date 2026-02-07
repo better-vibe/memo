@@ -72,14 +72,38 @@ export function entityTypeAbbr(entityType: string): string {
 }
 
 /**
- * Check if a new fact duplicates an existing active fact.
- * Simple substring/similarity check.
+ * Compute Jaccard similarity between two strings based on word tokens.
+ * Returns a value between 0 (no overlap) and 1 (identical).
  */
-export function isDuplicate(existingFacts: FactItem[], newFact: string): boolean {
+export function jaccardSimilarity(a: string, b: string): number {
+  const tokenize = (s: string): Set<string> =>
+    new Set(s.toLowerCase().trim().split(/\s+/).filter(Boolean));
+  const setA = tokenize(a);
+  const setB = tokenize(b);
+  if (setA.size === 0 && setB.size === 0) return 1;
+  let intersection = 0;
+  for (const token of setA) {
+    if (setB.has(token)) intersection++;
+  }
+  const union = setA.size + setB.size - intersection;
+  return union === 0 ? 0 : intersection / union;
+}
+
+/**
+ * Check if a new fact duplicates an existing active fact.
+ * Uses both exact match and fuzzy similarity detection.
+ */
+export function isDuplicate(existingFacts: FactItem[], newFact: string, fuzzyThreshold = 0.85): boolean {
   const normalized = newFact.toLowerCase().trim();
-  return existingFacts.some(
-    f => f.status === 'active' && f.fact.toLowerCase().trim() === normalized,
-  );
+  return existingFacts.some(f => {
+    if (f.status !== 'active') return false;
+    const existing = f.fact.toLowerCase().trim();
+    // Exact match
+    if (existing === normalized) return true;
+    // Fuzzy match via Jaccard similarity
+    if (jaccardSimilarity(existing, normalized) >= fuzzyThreshold) return true;
+    return false;
+  });
 }
 
 /**

@@ -1,7 +1,7 @@
 // Public API
 export { MemoryGraph } from './core/graph';
 export { slugify, displayNameFromSlug, formatDisplayName, ENTITY_TYPES, EntityType, listEntities, createEntity } from './core/entity';
-export { readFacts, writeFacts, getActiveFacts, atomicWriteJSON, atomicWriteText } from './core/facts';
+export { readFacts, writeFacts, getActiveFacts, atomicWriteJSON, atomicWriteText, jaccardSimilarity } from './core/facts';
 export { appendAudit, readAuditLog } from './core/audit';
 export {
   FactItem, FactCategory, FactStatus, ExtractionProposal, AuditEntry,
@@ -25,5 +25,6 @@ export { helpAgentCommand } from './commands/help-agent';
 export { syncDocsCommand } from './commands/sync-docs';
 export { queryCommand } from './commands/query';
 export { draftCommand } from './commands/draft';
+export { contextCommand } from './commands/context';
 export { helpCommand } from './commands/help';
 
