@@ -101,5 +101,15 @@
     "status": "active",
     "confidence": 1,
     "evidence": "Deleted 2.0.0 from GitHub registry, updated package.json and CLI to 1.1.0"
+  },
+  {
+    "id": "proj-better-vibe-memo-010",
+    "fact": "Added comprehensive README.md focused on AI workflow improvements",
+    "category": "status",
+    "timestamp": "2026-02-02",
+    "source": "documentation",
+    "status": "active",
+    "confidence": 1,
+    "evidence": "Created 401-line README with focus on AI agent context persistence and three-layer memory system"
   }
 ]
