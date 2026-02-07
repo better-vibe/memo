@@ -1,5 +1,11 @@
 # @better-vibe/memo
 
+## 1.3.0
+
+### Minor Changes
+
+- fb62391: add context command
+
 ## 1.2.1
 
 ### Patch Changes
