@@ -39,6 +39,9 @@ EXAMPLES:
   # Initialize memo in current directory
   memo init
 
+  # Initialize with Claude Code integration
+  memo init --agent claude
+
   # Extract facts from stdin
   echo '[{"entityType": "projects", "entityName": "my-app", "fact": "Uses React", "category": "dependency", "timestamp": "2025-01-31", "source": "analysis"}]' | memo extract
 
@@ -68,15 +71,30 @@ USAGE:
   memo init [options]
 
 OPTIONS:
-  --force    Reinitialize even if already initialized
+  --agent <types>  Generate AI agent config files (comma-separated)
+                   Supported: claude, cursor, codex
+                     claude  → CLAUDE.md
+                     cursor  → .cursorrules
+                     codex   → AGENTS.md (default, always created)
+  --force          Reinitialize even if already initialized
 
 DESCRIPTION:
   Creates the memory graph structure with entity directories,
   AGENTS.md, DECISIONS.md, and AI agent documentation.
 
-EXAMPLE:
-  memo init
-  memo init --force
+  When --agent is provided, generates agent-specific config files
+  containing memo integration instructions so the AI agent
+  automatically knows how to use the knowledge graph.
+
+  After initialization, prints a quick-start reference so the
+  agent can begin using memo immediately.
+
+EXAMPLES:
+  memo init                        # basic init
+  memo init --agent claude         # init + generate CLAUDE.md
+  memo init --agent cursor         # init + generate .cursorrules
+  memo init --agent claude,cursor  # init + generate both
+  memo init --force --agent claude # reinitialize + overwrite CLAUDE.md
 `,
   extract: `
 memo extract - Extract facts from input

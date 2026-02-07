@@ -72,6 +72,7 @@ addGlobalOpts(
   program
     .command('init')
     .description('Initialize three-layer memory system')
+    .option('--agent <types>', 'Generate AI agent config files (claude,cursor,codex)')
 ).action(async (opts) => {
   process.exitCode = await initCommand(opts);
 });

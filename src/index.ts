@@ -3,6 +3,7 @@ export { MemoryGraph } from './core/graph';
 export { slugify, displayNameFromSlug, formatDisplayName, ENTITY_TYPES, EntityType, listEntities, createEntity } from './core/entity';
 export { readFacts, writeFacts, getActiveFacts, atomicWriteJSON, atomicWriteText, jaccardSimilarity } from './core/facts';
 export { appendAudit, readAuditLog } from './core/audit';
+export { AgentType, VALID_AGENT_TYPES, parseAgentTypes, generateAgentConfigs } from './core/agent-config';
 export {
   FactItem, FactCategory, FactStatus, ExtractionProposal, AuditEntry,
   FactItemSchema, FactItemsArraySchema, ExtractionProposalSchema,
