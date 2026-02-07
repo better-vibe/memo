@@ -149,37 +149,61 @@ Last updated: 2026-01-30
 
 ---
 
-### `search`
+### `query`
 
-Query facts across the entire graph.
+Query facts with advanced filtering and search.
 
 ```bash
-memo search <query> [options]
+memo query [options]
 ```
 
-**Arguments:**
-- `<query>` — Search term
-
 **Options:**
+- `--entity-type <type>` — Filter by entity type (projects, libraries, patterns)
 - `--category <cat>` — Filter by category
-- `--entity-type <type>` — Filter by entity type
+- `--status <status>` — Filter by status (active, superseded)
+- `--source <pattern>` — Filter by source (regex)
+- `--query <text>` — Search fact text (regex)
+- `--evidence-contains <text>` — Search evidence field (regex)
+- `--tag <tags>` — Filter by tags (comma-separated, AND logic)
+- `--exclude-expired` — Exclude facts past their `expiresAt` date
+- `--related-to <entity>` — Find facts from entities linked to target
+- `--where <clause>` — Compound clause (e.g., `confidence>0.8`). Repeatable.
 
 **Examples:**
 ```bash
-# Simple search
-memo search "TypeScript"
+# Simple text search
+memo query --query "TypeScript"
 
 # Filter by category
-memo search "React" --category dependency
+memo query --category dependency
 
-# Filter by entity type
-memo search "constraint" --entity-type projects
+# High-confidence facts with evidence
+memo query --where "confidence>0.9" --evidence-contains "package.json"
 
-# Combined filters
-memo search "version" --category version --entity-type libraries
+# Find facts related to a specific entity
+memo query --related-to projects/my-app
 
-# JSON output
-memo search "bug" --json
+# Filter by tags
+memo query --tag "blocking,security"
+
+# Exclude expired facts
+memo query --exclude-expired --status active
+
+# Combined filters with JSON output
+memo query --category dependency --where "confidence>=0.8" --json
+```
+
+**Output:**
+```
+Found 3 fact(s) matching: category=dependency
+
+libraries/react:
+  [lib-react-001] Uses React 18 for frontend UI
+    Evidence: package.json
+
+libraries/typescript:
+  [lib-typescript-001] TypeScript 5.9 for type checking
+  [lib-typescript-002] Strict mode enabled
 ```
 
 ---
@@ -227,11 +251,15 @@ memo verify --json
    Warnings: 0
 ```
 
-Or if errors:
+Or if issues:
 ```
 ❌ Graph has errors
    projects/my-project: duplicate fact IDs: prj-myproject-001
    libraries/react: invalid items.json
+
+Warnings:
+   projects/my-app: fact proj-my-app-003 expired on 2026-01-15 but still active
+   libraries/react: potential duplicate facts (87% similar): lib-react-001 and lib-react-003
 ```
 
 ---
@@ -246,11 +274,15 @@ memo status [options]
 
 **Options:**
 - `--audit` — Show audit log
+- `--detailed` — Show category breakdown, entity types, and link statistics
 
 **Examples:**
 ```bash
 # Basic status
 memo status
+
+# With detailed breakdown
+memo status --detailed
 
 # With audit log
 memo status --audit
@@ -262,17 +294,39 @@ memo status --json
 **Output:**
 ```
 Memory Graph Status
-==================
-Entities: 8
-  - projects: 3
-  - libraries: 3
-  - patterns: 2
+  Entities:         8
+  Total facts:      45
+  Active facts:     42
+  Superseded facts: 3
+```
 
-Facts: 45
-  - Active: 42
-  - Superseded: 3
+With `--detailed`:
+```
+Memory Graph Status
+  Entities:         8
+  Total facts:      45
+  Active facts:     42
+  Superseded facts: 3
+  Expired facts:    2 (active but past expiresAt)
 
-Last operation: 2026-01-30T21:35:00Z
+Entity types:
+  projects: 3
+  libraries: 3
+  patterns: 2
+
+Fact categories (active):
+  dependency: 15
+  version: 8
+  architecture: 7
+  status: 5
+  constraint: 4
+  rule: 3
+
+Relationships:
+  Total links: 12
+  Entities with links: 5/8
+  uses: 8
+  used_by: 4
 ```
 
 ---
@@ -329,11 +383,162 @@ Generate agent integration guide.
 memo help-agent [options]
 ```
 
-Outputs documentation for AI agents on how to use the memory system.
+**Options:**
+- `--list-docs` — List available documentation files
+- `--show-doc <name>` — Show specific documentation file
 
 **Examples:**
 ```bash
+# Show full agent integration guide
 memo help-agent
+
+# List available docs
+memo help-agent --list-docs
+
+# Show specific doc
+memo help-agent --show-doc extract
+```
+
+---
+
+### `sync-docs`
+
+Sync AI agent documentation to `memory/docs/`.
+
+```bash
+memo sync-docs [options]
+```
+
+Copies embedded prompt files (extraction format, schema docs, agent rules) into the project's `memory/docs/` directory so AI agents have all documentation within the project context.
+
+**Examples:**
+```bash
+memo sync-docs
+```
+
+---
+
+### `draft`
+
+Queue facts for later extraction (AI agent workflow).
+
+```bash
+memo draft [options]
+```
+
+**Options:**
+- `--add <fact>` — Add a fact to the draft queue
+- `--list` — List all queued drafts
+- `--flush` — Extract all queued drafts to the knowledge graph
+- `--clear` — Clear the draft queue without extracting
+
+**Examples:**
+```bash
+# Queue facts during coding
+memo draft --add "Uses Zod 3.22 for validation"
+memo draft --add "Implements atomic file write pattern"
+
+# Review queued drafts
+memo draft --list
+
+# Flush all to knowledge graph
+memo draft --flush
+
+# Discard queue
+memo draft --clear
+```
+
+**Output (--add):**
+```
+Added to draft queue (2 total)
+   Inferred: libraries/Zod (dependency)
+```
+
+**Output (--flush):**
+```
+Flushed 2 fact(s) to knowledge graph
+   1 fact(s) superseded
+   Updated entities: libraries/zod, patterns/atomic-writes
+```
+
+---
+
+### `context`
+
+Generate AI-optimized context dump for session startup.
+
+```bash
+memo context [options]
+```
+
+Produces a compact, structured overview of the knowledge graph for an AI agent to quickly bootstrap understanding of a project.
+
+**Options:**
+- `--entity-type <type>` — Filter to specific entity type
+- `--entity <path>` — Focus on a specific entity (type/slug)
+- `--max-facts <n>` — Maximum facts per entity
+- `--compact` — Compact output (one line per fact)
+- `--include-decisions` — Include DECISIONS.md content
+- `--include-agents` — Include AGENTS.md content
+
+**Examples:**
+```bash
+# Full context dump
+memo context
+
+# Compact view
+memo context --compact
+
+# Focus on a specific entity
+memo context --entity projects/my-app
+
+# Include decisions and agent rules
+memo context --include-decisions --include-agents
+
+# Limit facts per entity, JSON output
+memo context --max-facts 5 --json
+```
+
+**Output:**
+```
+=== Knowledge Graph Context ===
+Generated: 2026-02-07T12:00:00.000Z
+Entities: 8 | Active facts: 42
+Categories: dependency(15), version(8), architecture(7), status(5)
+
+--- projects/my-app (My App) ---
+  dependency:
+    - Uses TypeScript 5.9 [100%]
+    - Uses React 18 for frontend [90%]
+  architecture:
+    - Microservices with API gateway [80%]
+  links: uses → libraries/typescript, uses → libraries/react
+
+--- libraries/typescript (Typescript) ---
+  version:
+    - Current version: 5.9.3 [100%]
+```
+
+**JSON output** includes `graphStats`, `entities` with ranked facts, and optionally `decisions` and `agents` content.
+
+---
+
+### `help`
+
+Show help information.
+
+```bash
+memo help [command]
+```
+
+**Examples:**
+```bash
+# Full help
+memo help
+
+# Help for a specific command
+memo help extract
+memo help query
 ```
 
 ---
@@ -354,6 +559,7 @@ memo help-agent
 | `$EDITOR` | Default editor for `edit` command |
 | `MEMO_NO_EDIT` | Set to `1` to skip prompts (set by `--no-edit`) |
 | `MEMO_FORCE` | Set to `1` to skip safety checks (set by `--force`) |
+| `MEMO_VERBOSE` | Set to `1` for verbose logging (set by `--verbose`) |
 
 ## Examples
 
@@ -363,8 +569,15 @@ memo help-agent
 # Initialize project
 memo init
 
-# Extract facts from code review
-cat review-comments.md | memo extract
+# Load context at session start
+memo context --compact
+
+# Queue facts during coding
+memo draft --add "Migrated auth module to JWT"
+memo draft --add "Uses bcrypt for password hashing"
+
+# Flush drafts to graph
+memo draft --flush
 
 # Synthesize updated summaries
 memo synthesize --all
@@ -372,8 +585,8 @@ memo synthesize --all
 # Verify everything is valid
 memo verify
 
-# Check status
-memo status
+# Check detailed status
+memo status --detailed
 ```
 
 ### CI/CD Integration

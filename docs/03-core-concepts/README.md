@@ -108,6 +108,20 @@ Optional 0-1 score indicating certainty:
 | 0.5 | Moderate (hearsay, unverified) |
 | 0.2 | Low (guess, temporary) |
 
+## Fuzzy Deduplication
+
+In addition to exact-match deduplication, memo detects near-duplicate facts using Jaccard word-level similarity. Two facts are considered duplicates when their word overlap exceeds 85% (configurable). This prevents graph bloat when an AI agent rephrases the same fact across sessions.
+
+The `verify` command also warns about potential duplicate active facts exceeding 80% similarity.
+
+## Fact Expiration
+
+Facts can optionally include an `expiresAt` field (YYYY-MM-DD). When a fact passes its expiration date:
+- `verify` warns that the fact is still active but expired
+- `query --exclude-expired` filters it out
+- `context` excludes it automatically
+- The fact remains `active` in storage — expiration is advisory, not auto-superseding
+
 ## Active vs Superseded
 
 ### Active Facts

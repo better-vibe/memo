@@ -44,6 +44,9 @@ Optional:
 - `evidence`: short string (quotation or reference)
 - `tags`: string[] (optional; e.g., ["security", "blocking"])
 - `expiresAt`: "YYYY-MM-DD" (optional; fact may rot after this date)
+- `links`: Link[] (optional; entity references detected from fact text)
+  - Each link: `{ entityType, slug, relation }` where relation is one of:
+    uses, implements, depends_on, extends, references, used_by, implemented_by, depended_on_by, extended_by, referenced_by
 
 ## Status Transitions
 - New facts are written as `active`.
@@ -53,13 +56,14 @@ Optional:
 
 ## ID Generation
 Deterministic approach, unique per entity. Format:
-- `<entity-type-abbr><entity-slug>-NNN` (zero-padded)
-- Example: `lib-axios-001`, `proj-api-backend-023`, `dev-alice-007`
+- `<entity-type-abbr>-<entity-slug>-NNN` (zero-padded)
+- Example: `lib-axios-001`, `proj-api-backend-023`, `pat-repository-001`
 - Determine NNN by scanning existing ids and incrementing max
 
 ## Deduplication
 Before appending a new fact:
 - If an active fact with same meaning already exists, do not add a duplicate.
+- Fuzzy matching is used: facts with >85% word-level Jaccard similarity are treated as duplicates.
 - For version facts, treat minor version changes as updates (supersede the old version).
 
 ## Contradiction Handling (Minimum)

@@ -25,11 +25,10 @@ Facts are stored atomically with metadata:
 - **Status**: Active or superseded
 - **Confidence**: Optional confidence score (0-1)
 
-### Four Entity Types
+### Three Entity Types
 
 Organize knowledge around:
 - **Projects** — Software projects and repositories
-- **Developers** — Team members and their expertise
 - **Libraries** — Dependencies and their versions/constraints
 - **Patterns** — Reusable patterns and best practices
 
@@ -49,6 +48,40 @@ Access knowledge in order of relevance:
 2. `items.json` — All facts (for verification/history)
 3. `AGENTS.md` — Stable rules and constraints
 4. `DECISIONS.md` — Decision rationale
+
+### Fuzzy Deduplication
+
+Near-duplicate facts are detected via Jaccard word-level similarity. When an agent phrases the same fact slightly differently across sessions (e.g., "Uses React 18" vs "Uses React v18"), the system prevents redundant entries at a configurable similarity threshold (default 85%).
+
+### Fact Expiration
+
+Facts can optionally include an `expiresAt` date. The `verify` command warns about active facts past their expiration, and `query --exclude-expired` filters them out. The `context` command automatically excludes expired facts.
+
+### Tag-Based Filtering
+
+Facts support optional `tags` arrays (e.g., `["blocking", "security"]`). The `query --tag` flag filters facts by tag with AND logic across multiple tags.
+
+### Draft Queue
+
+AI agents can quickly capture facts during coding without context switching:
+- `memo draft --add "fact"` — Queue a fact
+- `memo draft --flush` — Extract all queued drafts to the graph
+- Auto-infers entity type, name, and category from text
+
+### AI Context Loading
+
+The `memo context` command generates a compact, AI-optimized context dump:
+- Ranked facts (highest confidence and most recent first)
+- Expired facts automatically excluded
+- Category breakdown and graph statistics
+- Optional inclusion of DECISIONS.md and AGENTS.md
+
+### Relationship Linking
+
+Facts can contain links to other entities. Links are:
+- Auto-detected from fact text (e.g., "Uses React" creates a link)
+- Bidirectional (A uses B automatically creates B used_by A)
+- Queryable via `memo query --related-to`
 
 ### AI Agent Friendly
 
@@ -70,7 +103,7 @@ Designed for programmatic access:
 ### For Development Teams
 
 - Document dependencies and versions
-- Track developer expertise and ownership
+- Track expertise and ownership
 - Record architecture decisions (ADRs)
 - Build searchable knowledge bases
 

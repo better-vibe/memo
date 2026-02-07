@@ -1,5 +1,62 @@
 # @better-vibe/memo
 
+## 1.3.0
+
+### Minor Changes
+
+- AI agent workflow improvements: context command, fuzzy deduplication, expiry detection, tag filtering, enriched status
+
+  **New Features:**
+
+  1. **`memo context` command** — AI-optimized context dump for session startup
+     - Generates compact, ranked overview of the knowledge graph
+     - Facts ranked by confidence (highest first), then recency
+     - Expired facts automatically excluded
+     - `--compact` mode for dense output, `--max-facts` to limit per entity
+     - `--include-decisions` / `--include-agents` to include layer 2/3
+     - JSON and human-readable output formats
+
+  2. **Fuzzy deduplication** — Near-duplicate fact detection
+     - `jaccardSimilarity()` function for word-level similarity scoring
+     - `isDuplicate()` now detects near-duplicates at 85% threshold
+     - Prevents graph bloat from rephrased facts across sessions
+     - `verify` warns about active facts with >80% similarity
+
+  3. **Expired fact detection** — Enforcement of `expiresAt` field
+     - `verify` warns about active facts past their expiration date
+     - `query --exclude-expired` filters out expired facts
+     - `context` excludes expired facts automatically
+
+  4. **Tag-based querying** — Filter facts by tags
+     - `query --tag <tags>` with comma-separated AND logic
+     - Enables filtering by tags like "blocking", "security", "high-priority"
+
+  5. **Enriched status statistics** — Detailed graph breakdown
+     - `status --detailed` shows entity type counts, category distribution, link stats
+     - Expired fact count reported
+     - Relationship breakdown by relation type
+
+  **Files Added:**
+  - `src/commands/context.ts` — Context command implementation
+  - `src/core/context.test.ts` — Tests for new features
+
+  **Files Modified:**
+  - `src/core/facts.ts` — Added `jaccardSimilarity()`, updated `isDuplicate()` with fuzzy matching
+  - `src/core/graph.ts` — Enhanced `verify()` with expiry and near-duplicate checks
+  - `src/commands/query.ts` — Added `--tag` and `--exclude-expired` filters
+  - `src/commands/status.ts` — Added `--detailed` flag with category/link breakdowns
+  - `src/cli.ts` — Registered context command, new query and status options
+  - `src/index.ts` — Exported `contextCommand` and `jaccardSimilarity`
+
+  **Documentation Updated:**
+  - All 10 documentation sections updated to reflect new features
+  - Removed stale references to `search` command and `developers` entity type
+  - Added documentation for `query`, `draft`, `context`, `help`, `sync-docs` commands
+
+  **Verification:**
+  - All tests pass
+  - TypeScript strict mode: clean
+
 ## 1.2.0
 
 ### Minor Changes

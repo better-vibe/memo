@@ -6,7 +6,7 @@ A CLI for three-layer technical knowledge graph memory system.
 
 `memo` is a command-line tool that helps AI agents and developers maintain persistent, structured knowledge about software projects. It implements a three-layer memory architecture:
 
-1. **Knowledge Graph** — Structured facts about entities
+1. **Knowledge Graph** — Structured facts about entities (projects, libraries, patterns)
 2. **AGENTS.md** — Stable rules and constraints
 3. **DECISIONS.md** — Decision rationale and trade-offs
 
@@ -23,22 +23,35 @@ npx @better-vibe/memo init
 memo init
 
 # Extract facts from stdin
-echo "Project uses TypeScript" | memo extract
+echo '[{"entityType":"projects","entityName":"My App","fact":"Uses TypeScript 5.9","category":"dependency","timestamp":"2026-02-07","source":"manual"}]' | memo extract
 
 # View an entity
-memo view projects/my-project
+memo view projects/my-app
 
-# Search across all facts
-memo search "TypeScript"
+# Query across all facts
+memo query --query "TypeScript"
+
+# Load full context for AI agent session startup
+memo context --compact
+
+# Queue facts during coding, flush later
+memo draft --add "Uses Zod 3.22 for validation"
+memo draft --flush
 ```
 
 ## Key Features
 
 - **Atomic fact storage** — Facts stored with timestamps, sources, and categories
 - **Contradiction handling** — Old facts marked superseded, never deleted
+- **Fuzzy deduplication** — Near-duplicate facts detected via Jaccard similarity
+- **Fact expiration** — Optional `expiresAt` field with enforcement in verify and query
+- **Tag-based filtering** — Tag facts and query by tags
+- **AI context loading** — `memo context` generates a compact, ranked context dump
+- **Draft queue** — Capture facts quickly, extract in batch later
 - **Tiered retrieval** — Summary → Facts → Rules → Decisions
+- **Relationship linking** — Auto-detected bidirectional links between entities
 - **Version control friendly** — JSON facts, Markdown summaries
-- **AI agent integration** — Structured for programmatic access
+- **AI agent integration** — Structured for programmatic access with `--json` output
 
 ## Documentation
 

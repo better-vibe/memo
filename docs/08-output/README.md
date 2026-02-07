@@ -57,24 +57,73 @@ All commands support `--json` flag for machine-readable output.
 }
 ```
 
-### search
+### query
 
 ```json
 {
-  "query": "TypeScript",
+  "status": "ok",
+  "query": "category=dependency AND query=\"TypeScript\"",
+  "count": 2,
   "results": [
     {
       "entity": "projects/my-project",
-      "fact": {
-        "id": "prj-myproject-001",
-        "fact": "Uses TypeScript 5.9",
-        "category": "dependency",
-        "status": "active"
-      }
-    },
+      "type": "projects",
+      "slug": "my-project",
+      "factId": "proj-my-project-001",
+      "fact": "Uses TypeScript 5.9",
+      "category": "dependency",
+      "status": "active",
+      "timestamp": "2026-01-30",
+      "source": "package.json",
+      "confidence": 1.0,
+      "evidence": "package.json",
+      "links": [
+        { "entityType": "libraries", "slug": "typescript", "relation": "uses" }
+      ]
+    }
+  ]
+}
+```
 
-  ],
-  "total": 2
+### context
+
+```json
+{
+  "status": "ok",
+  "generatedAt": "2026-02-07T12:00:00.000Z",
+  "graphStats": {
+    "entityCount": 8,
+    "activeFactCount": 42,
+    "categoryBreakdown": {
+      "dependency": 15,
+      "version": 8,
+      "architecture": 7
+    }
+  },
+  "entities": [
+    {
+      "type": "projects",
+      "slug": "my-app",
+      "displayName": "My App",
+      "factCount": 5,
+      "facts": [ ... ],
+      "links": [
+        { "target": "libraries/typescript", "relation": "uses" }
+      ]
+    }
+  ]
+}
+```
+
+### draft
+
+```json
+{
+  "status": "ok",
+  "action": "flushed",
+  "extracted": 3,
+  "superseded": 1,
+  "entitiesUpdated": ["libraries/zod", "patterns/atomic-writes"]
 }
 ```
 
@@ -100,21 +149,34 @@ All commands support `--json` flag for machine-readable output.
 
 ```json
 {
+  "status": "ok",
   "initialized": true,
-  "entities": {
-    "total": 12,
-    "byType": {
-      "projects": 3,
-      "libraries": 3,
-      "patterns": 2
+  "entityCount": 8,
+  "totalFacts": 45,
+  "activeFacts": 42,
+  "supersededFacts": 3,
+  "expiredFacts": 1,
+  "entityTypeCount": {
+    "projects": 3,
+    "libraries": 3,
+    "patterns": 2
+  },
+  "categoryBreakdown": {
+    "dependency": 15,
+    "version": 8,
+    "architecture": 7,
+    "status": 5,
+    "constraint": 4,
+    "rule": 3
+  },
+  "linkStats": {
+    "totalLinks": 12,
+    "entitiesWithLinks": 5,
+    "relationBreakdown": {
+      "uses": 8,
+      "used_by": 4
     }
-  },
-  "facts": {
-    "total": 45,
-    "active": 42,
-    "superseded": 3
-  },
-  "lastOperation": "2026-01-30T21:35:00Z"
+  }
 }
 ```
 
@@ -253,12 +315,12 @@ Fact IDs follow a pattern:
 ```
 
 Examples:
-- `prj-myproject-001` (project)
+- `proj-myproject-001` (project)
 - `lib-typescript-001` (library)
 - `pat-repository-001` (pattern)
 
 Abbreviations:
-- `prj` — projects
+- `proj` — projects
 - `lib` — libraries
 - `pat` — patterns
 
@@ -272,6 +334,7 @@ Valid fact categories:
 - `architecture` — Architecture decisions
 - `decision` — General decisions
 - `ownership` — Code ownership
+- `expertise` — Domain expertise
 - `bug` — Known bugs
 - `tech_debt` — Technical debt
 - `rule` — Coding rules

@@ -31,7 +31,7 @@
 
 ## Layer 1: Knowledge Graph
 
-The knowledge graph stores **atomic facts** about four entity types.
+The knowledge graph stores **atomic facts** about three entity types: projects, libraries, and patterns.
 
 ### Entity Structure
 
@@ -110,6 +110,16 @@ The `_meta/` directory contains operational data:
 {
   "My Project": "my-project",
   "TypeScript": "typescript"
+}
+```
+
+**draft.json** — Draft queue for AI agent workflow (optional):
+```json
+{
+  "items": [
+    { "id": "draft-...", "fact": "Uses Zod 3.22", "timestamp": "...", "inferred": { ... } }
+  ],
+  "lastUpdated": "..."
 }
 ```
 
