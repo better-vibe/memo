@@ -26,16 +26,30 @@ memo init [options]
 Creates:
 - `memory/graph/` with entity type directories
 - `memory/_meta/` for audit logs
+- `memory/docs/` with AI agent documentation
 - `AGENTS.md` (if not exists)
 - `DECISIONS.md` (if not exists)
 
+When `--agent` is provided, also generates agent-specific config files (e.g., `CLAUDE.md`, `.cursorrules`) containing memo integration instructions so the AI tool automatically knows how to use the knowledge graph.
+
+After initialization, prints a quick-start command reference so the agent can begin using memo immediately.
+
 **Options:**
+- `--agent <types>` — Generate AI agent config files (comma-separated). Supported types:
+  - `claude` — Generates `CLAUDE.md` with memo workflow instructions
+  - `cursor` — Generates `.cursorrules` with memo workflow instructions
+  - `codex` — Uses the default `AGENTS.md` (always created)
 - `--force` — Reinitialize even if already initialized
+
+**Idempotent behavior:** If the target file already exists, memo appends a memo section instead of overwriting. Use `--force` to overwrite.
 
 **Examples:**
 ```bash
-memo init
-memo init --force
+memo init                        # Basic initialization
+memo init --agent claude         # With Claude Code integration
+memo init --agent cursor         # With Cursor integration
+memo init --agent claude,cursor  # Multiple agents at once
+memo init --force --agent claude # Reinitialize + overwrite CLAUDE.md
 ```
 
 **Output:**
@@ -45,6 +59,16 @@ memo init --force
    Agents:    /project/AGENTS.md
    Decisions: /project/DECISIONS.md
    Meta:      /project/memory/_meta
+   Docs:      /project/memory/docs (8 files)
+   Agent configs generated: CLAUDE.md
+
+--- Quick Start ---
+
+COMMANDS:
+  memo context --compact       Load session context (run at conversation start)
+  memo draft --add "<fact>"    Queue a fact during work
+  memo draft --flush           Extract all queued drafts to knowledge graph
+  ...
 ```
 
 ---
@@ -566,8 +590,8 @@ memo help query
 ### Daily Workflow
 
 ```bash
-# Initialize project
-memo init
+# Initialize project (with AI agent config)
+memo init --agent claude
 
 # Load context at session start
 memo context --compact

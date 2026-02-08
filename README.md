@@ -126,6 +126,23 @@ memory/
 └── DECISIONS.md     # Decision log (Layer 2)
 ```
 
+#### AI Agent Integration
+
+Generate agent-specific config files so your AI tool automatically knows how to use memo:
+
+```bash
+# For Claude Code — generates CLAUDE.md
+memo init --agent claude
+
+# For Cursor — generates .cursorrules
+memo init --agent cursor
+
+# For multiple agents at once
+memo init --agent claude,cursor
+```
+
+Supported agent types: `claude`, `cursor`, `codex`. After initialization, memo prints a quick-start command reference so the agent can begin working immediately.
+
 ### 2. Extract Your First Facts
 
 ```bash
@@ -241,6 +258,8 @@ AI: [checks memory] I see you're using Auth0 v2.1.3 with custom
 
 ### AI Agent Integration Features
 
+- **`--agent` flag on init** — Generate `CLAUDE.md`, `.cursorrules`, or other agent config files automatically
+- **Quick-start output** — After init, memo prints a command reference so agents can start immediately
 - **`help-agent`** — Generate integration guides for your specific setup
 - **`sync-docs`** — Keep AI agent documentation in sync with code
 - **Machine-readable output** — All commands support `--json` for programmatic use
@@ -253,7 +272,7 @@ AI: [checks memory] I see you're using Auth0 v2.1.3 with custom
 
 | Command | Description |
 |---------|-------------|
-| `memo init` | Initialize three-layer memory system |
+| `memo init` | Initialize memory system (use `--agent claude\|cursor\|codex` for AI config) |
 | `memo context` | Load full context for AI agent session startup |
 | `memo extract` | Extract facts from input (stdin, file, inline) |
 | `memo synthesize` | Rewrite summaries from facts |
