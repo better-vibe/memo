@@ -10,7 +10,7 @@ USAGE:
   memo <command> [options]
 
 COMMANDS:
-  init              Initialize three-layer memory system
+  init              Initialize memory system (--agent claude|cursor|codex)
   extract           Extract facts from input
   draft             Queue facts for later extraction
   synthesize        Rewrite summaries from facts

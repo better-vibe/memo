@@ -83,6 +83,15 @@ Facts can contain links to other entities. Links are:
 - Bidirectional (A uses B automatically creates B used_by A)
 - Queryable via `memo query --related-to`
 
+### AI Agent Config Generation
+
+Use `memo init --agent <type>` to generate config files for specific AI tools:
+- `claude` — Generates `CLAUDE.md` for Claude Code
+- `cursor` — Generates `.cursorrules` for Cursor
+- `codex` — Uses the default `AGENTS.md`
+
+Each config file contains memo workflow instructions so the agent knows how to use the knowledge graph from the first session. After init, a quick-start command reference is printed automatically.
+
 ### AI Agent Friendly
 
 Designed for programmatic access:

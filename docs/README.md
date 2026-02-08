@@ -22,6 +22,9 @@ npx @better-vibe/memo init
 # Initialize memory system in your project
 memo init
 
+# Initialize with AI agent config (Claude Code, Cursor, etc.)
+memo init --agent claude
+
 # Extract facts from stdin
 echo '[{"entityType":"projects","entityName":"My App","fact":"Uses TypeScript 5.9","category":"dependency","timestamp":"2026-02-07","source":"manual"}]' | memo extract
 
@@ -51,6 +54,7 @@ memo draft --flush
 - **Tiered retrieval** — Summary → Facts → Rules → Decisions
 - **Relationship linking** — Auto-detected bidirectional links between entities
 - **Version control friendly** — JSON facts, Markdown summaries
+- **AI agent config generation** — `--agent claude|cursor|codex` generates config files for AI tools
 - **AI agent integration** — Structured for programmatic access with `--json` output
 
 ## Documentation

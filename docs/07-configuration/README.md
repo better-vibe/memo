@@ -11,11 +11,14 @@ my-project/
 │   │   ├── projects/
 │   │   ├── libraries/
 │   │   └── patterns/
-│   └── _meta/
-│       ├── audit.json
-│       └── entities.json
+│   ├── _meta/
+│   │   ├── audit.json
+│   │   └── entities.json
+│   └── docs/            # AI agent documentation
 ├── AGENTS.md
-└── DECISIONS.md
+├── DECISIONS.md
+├── CLAUDE.md            # (if --agent claude)
+└── .cursorrules         # (if --agent cursor)
 ```
 
 ## Initializing a Project
@@ -26,6 +29,11 @@ cd my-project
 
 # Initialize memo
 memo init
+
+# Initialize with AI agent config files
+memo init --agent claude          # generates CLAUDE.md
+memo init --agent cursor          # generates .cursorrules
+memo init --agent claude,cursor   # generates both
 
 # Or force reinitialize
 memo init --force
@@ -121,6 +129,55 @@ Each decision section includes:
 - **Trade-offs**: Slightly more complex setup, smaller hosting options
 - **Status**: active
 - **Related Facts**: projects/my-app (dependency), libraries/postgresql (dependency)
+```
+
+## AI Agent Config Files
+
+When you initialize memo with the `--agent` flag, agent-specific configuration files are generated so your AI tool automatically knows how to use the knowledge graph.
+
+### Supported Agent Types
+
+| Agent Type | Config File | Description |
+|------------|-------------|-------------|
+| `claude` | `CLAUDE.md` | Instructions for Claude Code (session startup, draft workflow, query patterns) |
+| `cursor` | `.cursorrules` | Instructions for Cursor AI (same workflow, plain-text format) |
+| `codex` | `AGENTS.md` | Uses the default AGENTS.md (always created by `memo init`) |
+
+### Usage
+
+```bash
+# Single agent
+memo init --agent claude
+
+# Multiple agents (comma-separated)
+memo init --agent claude,cursor
+
+# Overwrite existing configs
+memo init --force --agent claude
+```
+
+### Idempotent Behavior
+
+- If the target file **does not exist**, memo creates it with full memo instructions.
+- If the target file **already exists** without a memo section, memo appends the memo section.
+- If the target file **already has** a memo section, it is skipped (unless `--force` is used).
+
+### Generated Content
+
+Each config file includes:
+- Session startup instructions (`memo context --compact`)
+- Draft workflow for low-friction fact capture
+- Query patterns for retrieving context before changes
+- Full CLI reference with key flags
+- Guidance on what to extract vs. skip
+
+### Git Integration
+
+When using `--agent`, add the generated files to version control:
+
+```bash
+git add CLAUDE.md .cursorrules
+git commit -m "Add AI agent configuration for memo"
 ```
 
 ## Git Integration

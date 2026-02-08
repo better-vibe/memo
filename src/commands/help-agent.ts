@@ -13,9 +13,24 @@ const AGENT_GUIDE = `# Agent Integration Guide for memo
 
 ## Quick Start
 
-1. Read \`memory/docs/three-layer-memory-system.md\` to understand the architecture
-2. Use commands below to interact with the knowledge graph
-3. Read \`memory/docs/extract.md\` for fact extraction format
+1. Initialize with agent config: \`memo init --agent claude\` (or \`cursor\`, \`codex\`)
+   This generates a config file (e.g., CLAUDE.md, .cursorrules) with memo instructions.
+2. Read \`memory/docs/three-layer-memory-system.md\` to understand the architecture
+3. Use commands below to interact with the knowledge graph
+4. Read \`memory/docs/extract.md\` for fact extraction format
+
+## Agent Config Generation
+
+Generate agent-specific config files during init:
+
+\`\`\`bash
+memo init --agent claude          # generates CLAUDE.md
+memo init --agent cursor          # generates .cursorrules
+memo init --agent claude,cursor   # generates both
+\`\`\`
+
+Supported types: \`claude\`, \`cursor\`, \`codex\` (comma-separated).
+Config files contain session startup, draft workflow, and CLI reference.
 
 ## Documentation Location
 
