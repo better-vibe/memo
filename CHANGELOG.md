@@ -1,5 +1,11 @@
 # @better-vibe/memo
 
+## 1.4.0
+
+### Minor Changes
+
+- 6e9d47d: add --agent flag to init command
+
 ## 1.3.0
 
 ### Minor Changes
