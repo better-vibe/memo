@@ -12,9 +12,6 @@ interface AgentConfigResult {
   errors: string[];
 }
 
-/**
- * Parse a comma-separated agent string into validated agent types.
- */
 export function parseAgentTypes(input: string): AgentType[] {
   return input
     .split(',')
@@ -22,9 +19,10 @@ export function parseAgentTypes(input: string): AgentType[] {
     .filter((s): s is AgentType => VALID_AGENT_TYPES.includes(s as AgentType));
 }
 
-/**
- * Get the output file path for a given agent type.
- */
+function cursorRulesDir(projectRoot: string): string {
+  return path.join(projectRoot, '.cursor', 'rules');
+}
+
 function agentConfigPath(projectRoot: string, agent: AgentType): string {
   switch (agent) {
     case 'claude':
@@ -36,9 +34,6 @@ function agentConfigPath(projectRoot: string, agent: AgentType): string {
   }
 }
 
-/**
- * Generate agent-specific config files for the given agent types.
- */
 export function generateAgentConfigs(
   projectRoot: string,
   agents: AgentType[],
@@ -47,23 +42,32 @@ export function generateAgentConfigs(
   const result: AgentConfigResult = { generated: [], skipped: [], errors: [] };
 
   for (const agent of agents) {
-    const filePath = agentConfigPath(projectRoot, agent);
-    const fileName = path.basename(filePath);
-
-    // For codex, skip — AGENTS.md is already handled by initCommand directly
     if (agent === 'codex') {
-      result.skipped.push(`${fileName} (managed by memo init directly)`);
+      result.skipped.push('AGENTS.md (managed by memo init)');
       continue;
     }
 
+    if (agent === 'cursor') {
+      try {
+        const cursorResult = generateCursorRules(projectRoot, options.force ?? false);
+        result.generated.push(...cursorResult.generated);
+        result.skipped.push(...cursorResult.skipped);
+        result.errors.push(...cursorResult.errors);
+      } catch (err: any) {
+        result.errors.push(`cursor: ${err.message}`);
+      }
+      continue;
+    }
+
+    const filePath = agentConfigPath(projectRoot, agent);
+    const fileName = path.basename(filePath);
+
     if (fs.existsSync(filePath) && !options.force) {
-      // File exists: check if memo section is already present
       const existing = fs.readFileSync(filePath, 'utf-8');
       if (hasMemoSection(existing)) {
         result.skipped.push(`${fileName} (memo section already present)`);
         continue;
       }
-      // Append memo section to existing file
       try {
         const section = getMemoSection(agent);
         atomicWriteText(filePath, existing + '\n\n' + section);
@@ -72,7 +76,6 @@ export function generateAgentConfigs(
         result.errors.push(`${fileName}: ${err.message}`);
       }
     } else {
-      // Create new file or force overwrite
       try {
         const content = getFullTemplate(agent);
         atomicWriteText(filePath, content);
@@ -86,12 +89,51 @@ export function generateAgentConfigs(
   return result;
 }
 
+function generateCursorRules(projectRoot: string, force: boolean): AgentConfigResult {
+  const result: AgentConfigResult = { generated: [], skipped: [], errors: [] };
+  const rulesDir = cursorRulesDir(projectRoot);
+
+  const mdcPath = path.join(rulesDir, 'memo.mdc');
+
+  if (!fs.existsSync(rulesDir)) {
+    try {
+      fs.mkdirSync(rulesDir, { recursive: true });
+    } catch (err: any) {
+      result.errors.push(`.cursor/rules: ${err.message}`);
+      return result;
+    }
+  }
+
+  if (!force && fs.existsSync(mdcPath)) {
+    const existing = fs.readFileSync(mdcPath, 'utf-8');
+    if (existing.includes('memo knowledge graph')) {
+      result.skipped.push('.cursor/rules/memo.mdc (memo rule already present)');
+    } else {
+      try {
+        atomicWriteText(mdcPath, getCursorRulesMdcContent());
+        result.generated.push('.cursor/rules/memo.mdc');
+      } catch (err: any) {
+        result.errors.push(`.cursor/rules/memo.mdc: ${err.message}`);
+      }
+    }
+  } else {
+    try {
+      atomicWriteText(mdcPath, getCursorRulesMdcContent());
+      result.generated.push('.cursor/rules/memo.mdc');
+    } catch (err: any) {
+      result.errors.push(`.cursor/rules/memo.mdc: ${err.message}`);
+    }
+  }
+
+  return result;
+}
+
 function hasMemoSection(content: string): boolean {
   return content.includes('memo') && (
     content.includes('memo extract') ||
     content.includes('memo draft') ||
     content.includes('memo context') ||
-    content.includes('knowledge graph memory')
+    content.includes('knowledge graph')
   );
 }
 
@@ -117,160 +159,322 @@ function getFullTemplate(agent: AgentType): string {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Templates
-// ---------------------------------------------------------------------------
+function getCursorRulesMdcContent(): string {
+  return `---
+description: "Instructions for using memo knowledge graph - capture dependencies, architecture decisions, constraints, and bugs"
+alwaysApply: false
+---
 
-const MEMO_COMMANDS_REFERENCE = `## memo CLI Reference
+## memo Knowledge Graph
 
+This project uses memo, a three-layer knowledge graph that stores durable technical facts in \`memory/\`.
+
+### Why Use memo
+
+- Avoid repeating past architectural decisions
+- Track dependency versions, security patches, breaking changes
+- Preserve rationale for key decisions
+- Document known bugs and tech debt
+
+### Workflow
+
+**Session Startup** — Run at the start of every conversation:
 \`\`\`bash
-# Bootstrap session context (run at start of every conversation)
 memo context --compact
+\`\`\`
 
-# Queue facts during work (low-friction)
+**During Work** — Queue discoveries without interrupting flow:
+\`\`\`bash
 memo draft --add "Uses React 19 with server components"
 memo draft --add "Auth tokens expire after 24h"
-memo draft --flush          # extract all queued drafts
+memo draft --flush
+\`\`\`
 
-# Extract structured facts directly
-echo '[{
-  "entityType": "projects",
-  "entityName": "my-app",
-  "fact": "Migrated from Express to Fastify",
-  "category": "architecture",
-  "timestamp": "2025-06-15",
-  "source": "migration PR #412"
-}]' | memo extract --json
-
-# Query existing knowledge
+**Before Changes** — Query existing knowledge:
+\`\`\`bash
 memo query --category dependency --json
 memo query --entity-type projects --json
 memo view projects/my-app --json
+\`\`\`
 
-# Verify graph consistency
+**Before Committing** — Verify consistency:
+\`\`\`bash
 memo verify --json
 \`\`\`
 
-### Key Flags
-- \`--json\`: Always use for machine-readable output
-- \`--no-edit\`: Skip interactive prompts (batch mode)
-- \`--dry-run\`: Preview changes without writing
+### Key Commands
 
-### What to Extract
-- Dependency versions, breaking changes
-- Architecture decisions and rationale
-- Project constraints and rules
-- Known bugs, tech debt
-- Coding standards
+| Command | Purpose |
+|---------|---------|
+| \`memo context --compact\` | Load session context |
+| \`memo draft --add "<fact>"\` | Queue a fact |
+| \`memo draft --flush\` | Extract queued facts |
+| \`memo query --json\` | Query facts |
+| \`memo view <type>/<slug>\` | Inspect entity |
+| \`memo verify --json\` | Check consistency |
 
-### What to Skip
-- Ephemeral errors, debugging output
-- Session-specific details
-- Temporary plans`;
+### What to Capture
 
-const CLAUDE_MD_TEMPLATE = `# Project Instructions
+**Extract**: dependency versions, breaking changes, architecture decisions, code constraints, known bugs, tech debt.
 
-This project uses **memo** — a three-layer knowledge graph memory system.
-The knowledge graph persists durable technical facts across sessions in \`memory/\`.
+**Skip**: debugging output, session details, temporary plans.
 
-## Session Startup
+### Flags
 
-At the start of every conversation, load project context:
+- \`--json\` — Machine-readable output
+- \`--no-edit\` — Skip prompts (batch mode)
+- \`--dry-run\` — Preview changes`;
+}
 
+const COMMON_WORKFLOW = `## When to Run memo Commands
+
+### Session Startup
+Run at the START of every conversation:
 \`\`\`bash
 memo context --compact
 \`\`\`
+This loads all known entities, facts, and decisions into context.
 
-This gives you the current state of all known entities, facts, and decisions.
+### During Work
+As you implement features or fix bugs, capture important discoveries:
 
-## During Work
-
-As you discover important facts (dependencies, architecture decisions, constraints,
-bugs, patterns), queue them so they are not lost:
-
+**Queue facts** (low-friction, non-blocking):
 \`\`\`bash
-memo draft --add "<atomic, specific fact>"
+memo draft --add "Uses React 19 with server components"
+memo draft --add "Auth tokens expire after 24h"
 \`\`\`
 
-At natural breakpoints (after finishing a feature, before switching topics), flush:
-
+**Flush at natural breakpoints** (after completing a feature, before switching topics):
 \`\`\`bash
 memo draft --flush
 \`\`\`
 
-## Before Making Changes
+### Before Making Changes
+Query existing knowledge to avoid repeating past decisions:
+\`\`\`bash
+memo query --category dependency --json
+memo query --entity-type projects --json
+memo view projects/my-app --json
+\`\`\`
 
-Query the knowledge graph for relevant context:
+### Before Committing
+Verify graph consistency before finishing:
+\`\`\`bash
+memo verify --json
+\`\`\`
 
+## CLI Reference
+
+\`\`\`bash
+# Session bootstrap
+memo context --compact              Load all entities, facts, decisions
+
+# Capture facts during work
+memo draft --add "<fact>"           Queue a fact
+memo draft --flush                  Extract queued facts
+memo draft --list                   Show queued drafts
+
+# Extract structured facts
+echo '<json>' | memo extract --json
+
+# Query knowledge
+memo query --json                   Query all facts
+memo query --category <cat> --json  Filter by category
+memo query --entity-type <type> --json
+
+# View entities
+memo view <type>/<slug> --json
+
+# Graph maintenance
+memo synthesize --all --json        Rewrite summaries
+memo verify --json                  Check consistency
+
+# Backup/restore
+memo export --output backup.json
+memo import --input backup.json
+\`\`\`
+
+## Key Flags
+- \`--json\`: Always use for machine-readable output
+- \`--no-edit\`: Skip interactive prompts (batch mode)
+- \`--dry-run\`: Preview changes without writing
+
+## What to Extract
+Capture durable technical facts:
+- Dependency versions, security patches, breaking changes
+- Architecture decisions and their rationale
+- Code constraints, linting standards, rules
+- Known bugs, tech debt, architectural debt
+- Developer expertise and ownership
+
+## What to Skip
+Don't capture ephemeral information:
+- One-off debugging output
+- Session-specific details
+- Temporary feature flags
+- Unconfirmed plans`;
+
+const CLAUDE_MD_TEMPLATE = `# Project Instructions
+
+This project uses **memo** — a three-layer knowledge graph memory system.
+
+## Overview
+
+memo persists durable technical facts across sessions in \`memory/\`. It helps avoid:
+- Repeating past architectural decisions
+- Forgetting dependency versions or constraints
+- Losing track of why certain choices were made
+
+## Workflow
+
+### 1. Session Startup
+At the start of every conversation, run:
+\`\`\`bash
+memo context --compact
+\`\`\`
+
+### 2. During Work
+While implementing features, queue important discoveries:
+\`\`\`bash
+memo draft --add "<specific fact>"
+\`\`\`
+
+Flush at natural breakpoints:
+\`\`\`bash
+memo draft --flush
+\`\`\`
+
+### 3. Before Changes
+Query existing knowledge:
 \`\`\`bash
 memo query --query "<topic>" --json
 memo view <entityType>/<slug> --json
 \`\`\`
 
-${MEMO_COMMANDS_REFERENCE}
+### 4. Before Committing
+Check graph consistency:
+\`\`\`bash
+memo verify --json
+\`\`\`
+
+${COMMON_WORKFLOW}
 `;
 
 const CLAUDE_MEMO_SECTION = `
-## memo — Persistent Knowledge Graph
+## memo — Knowledge Graph Memory
 
-This project uses **memo** for durable technical memory across sessions.
+This project uses **memo** for persistent technical memory.
 
-At session start, run: \`memo context --compact\`
-During work, queue facts: \`memo draft --add "<fact>"\`
-At breakpoints, flush: \`memo draft --flush\`
+### Session Start
+\`\`\`bash
+memo context --compact
+\`\`\`
 
-${MEMO_COMMANDS_REFERENCE}
+### During Work
+\`\`\`bash
+memo draft --add "<fact>"   # Queue discoveries
+memo draft --flush          # Persist at breakpoints
+\`\`\`
+
+### Before Changes
+\`\`\`bash
+memo query --json
+memo view <type>/<slug> --json
+\`\`\`
+
+### Before Commit
+\`\`\`bash
+memo verify --json
+\`\`\`
+
+${COMMON_WORKFLOW}
 `;
 
 const CURSORRULES_TEMPLATE = `# Project Rules
 
 This project uses **memo** — a three-layer knowledge graph memory system.
-The knowledge graph persists durable technical facts across sessions in \`memory/\`.
 
-## Session Startup
+> ⚠️ **Note**: The modern format is \`.cursor/rules/memo.mdc\`. This \`.cursorrules\` file is for backward compatibility.
 
-At the start of every conversation, load project context:
+## Why memo?
 
+memo stores durable technical facts in \`memory/\` that persist across sessions:
+- Dependency versions and constraints
+- Architecture decisions and rationale
+- Code rules and standards
+- Known bugs and tech debt
+
+## Workflow
+
+### 1. Session Startup (ALWAYS)
+At the start of EVERY conversation:
+\`\`\`
 memo context --compact
+\`\`\`
+This loads all entities, facts, and decisions into context.
 
-This gives you the current state of all known entities, facts, and decisions.
+### 2. During Work
+As you make changes, capture important discoveries:
 
-## During Work
-
-As you discover important facts (dependencies, architecture decisions, constraints,
-bugs, patterns), queue them so they are not lost:
-
-memo draft --add "<atomic, specific fact>"
-
-At natural breakpoints (after finishing a feature, before switching topics), flush:
-
-memo draft --flush
-
-## Before Making Changes
-
-Query the knowledge graph for relevant context:
-
-memo query --query "<topic>" --json
-memo view <entityType>/<slug> --json
-
-## memo CLI Reference
-
-# Bootstrap session context (run at start of every conversation)
-memo context --compact
-
-# Queue facts during work (low-friction)
+**Queue facts** (non-blocking):
+\`\`\`
 memo draft --add "Uses React 19 with server components"
+memo draft --add "Auth tokens expire after 24h"
+\`\`\`
+
+**Flush at breakpoints** (after completing a feature, before switching topics):
+\`\`\`
 memo draft --flush
+\`\`\`
 
-# Extract structured facts directly
-echo '[{"entityType": "projects", "entityName": "my-app", "fact": "Migrated from Express to Fastify", "category": "architecture", "timestamp": "2025-06-15", "source": "migration PR #412"}]' | memo extract --json
-
-# Query existing knowledge
+### 3. Before Making Changes
+Query existing knowledge to avoid repeating decisions:
+\`\`\`
 memo query --category dependency --json
+memo query --entity-type projects --json
 memo view projects/my-app --json
+\`\`\`
 
-# Verify graph consistency
+### 4. Before Committing
+Verify consistency:
+\`\`\`
 memo verify --json
+\`\`\`
+
+## Commands Reference
+
+### Bootstrap
+\`\`\`
+memo context --compact              # Load session context
+\`\`\`
+
+### Capture Facts
+\`\`\`
+memo draft --add "<fact>"           # Queue a fact
+memo draft --flush                   # Extract queued facts
+memo draft --list                    # Show queued drafts
+\`\`\`
+
+### Query Knowledge
+\`\`\`
+memo query --json                   # Query all facts
+memo query --category <cat> --json  # Filter by category
+memo query --entity-type <type> --json
+memo query --query "<text>" --json
+\`\`\`
+
+### View Entities
+\`\`\`
+memo view <type>/<slug> --json
+\`\`\`
+
+### Maintenance
+\`\`\`
+memo synthesize --all --json        # Rewrite summaries
+memo verify --json                  # Check consistency
+memo export --output backup.json
+memo import --input backup.json
+\`\`\`
 
 ## Key Flags
 - --json: Always use for machine-readable output
@@ -278,33 +482,47 @@ memo verify --json
 - --dry-run: Preview changes without writing
 
 ## What to Extract
-- Dependency versions, breaking changes
-- Architecture decisions and rationale
-- Project constraints and rules
+- Dependency versions, security patches, breaking changes
+- Architecture decisions + rationale
+- Code constraints, linting standards
 - Known bugs, tech debt
-- Coding standards
+- Developer expertise
 
 ## What to Skip
-- Ephemeral errors, debugging output
+- Debugging output
 - Session-specific details
-- Temporary plans
-`;
+- Temporary plans`;
 
 const CURSOR_MEMO_SECTION = `
-## memo — Persistent Knowledge Graph
+## memo — Knowledge Graph
 
-This project uses **memo** for durable technical memory across sessions.
+This project uses memo for persistent technical memory.
 
-At session start, run: memo context --compact
-During work, queue facts: memo draft --add "<fact>"
-At breakpoints, flush: memo draft --flush
+### Session Start
+memo context --compact
 
-## memo CLI Reference
+### During Work
+memo draft --add "<fact>"
+memo draft --flush
 
-memo context --compact          # Load session context
-memo draft --add "<fact>"       # Queue a fact
-memo draft --flush              # Extract queued drafts
-memo query --category <cat> --json  # Query facts
-memo view <type>/<slug> --json  # View entity
-memo verify --json              # Check consistency
+### Before Changes
+memo query --json
+memo view <type>/<slug> --json
+
+### Before Commit
+memo verify --json
+
+## Commands
+
+memo context --compact           Load session context
+memo draft --add "<fact>"       Queue a fact
+memo draft --flush              Extract queued facts
+memo query --json              Query facts
+memo view <type>/<slug>        View entity
+memo verify --json             Check consistency
+
+## Key Flags
+--json: Machine-readable output
+--no-edit: Skip prompts
+--dry-run: Preview
 `;

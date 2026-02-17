@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import { initCommand } from './commands/init';
+import { integrateCommand } from './commands/integrate';
 import { extractCommand } from './commands/extract';
 import { synthesizeCommand } from './commands/synthesize';
 import { viewCommand } from './commands/view';
@@ -72,9 +73,17 @@ addGlobalOpts(
   program
     .command('init')
     .description('Initialize three-layer memory system')
-    .option('--agent <types>', 'Generate AI agent config files (claude,cursor,codex)')
 ).action(async (opts) => {
   process.exitCode = await initCommand(opts);
+});
+
+addGlobalOpts(
+  program
+    .command('integrate [agents...]')
+    .description('Generate AI agent integration files (claude,cursor,codex,all)')
+    .option('--list', 'List supported agents and their config files')
+).action(async (agents, opts) => {
+  process.exitCode = await integrateCommand({ ...opts, agents });
 });
 
 addGlobalOpts(

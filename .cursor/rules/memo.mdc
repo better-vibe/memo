@@ -1,0 +1,64 @@
+---
+description: "Instructions for using memo knowledge graph - capture dependencies, architecture decisions, constraints, and bugs"
+alwaysApply: false
+---
+
+## memo Knowledge Graph
+
+This project uses memo, a three-layer knowledge graph that stores durable technical facts in `memory/`.
+
+### Why Use memo
+
+- Avoid repeating past architectural decisions
+- Track dependency versions, security patches, breaking changes
+- Preserve rationale for key decisions
+- Document known bugs and tech debt
+
+### Workflow
+
+**Session Startup** — Run at the start of every conversation:
+```bash
+memo context --compact
+```
+
+**During Work** — Queue discoveries without interrupting flow:
+```bash
+memo draft --add "Uses React 19 with server components"
+memo draft --add "Auth tokens expire after 24h"
+memo draft --flush
+```
+
+**Before Changes** — Query existing knowledge:
+```bash
+memo query --category dependency --json
+memo query --entity-type projects --json
+memo view projects/my-app --json
+```
+
+**Before Committing** — Verify consistency:
+```bash
+memo verify --json
+```
+
+### Key Commands
+
+| Command | Purpose |
+|---------|---------|
+| `memo context --compact` | Load session context |
+| `memo draft --add "<fact>"` | Queue a fact |
+| `memo draft --flush` | Extract queued facts |
+| `memo query --json` | Query facts |
+| `memo view <type>/<slug>` | Inspect entity |
+| `memo verify --json` | Check consistency |
+
+### What to Capture
+
+**Extract**: dependency versions, breaking changes, architecture decisions, code constraints, known bugs, tech debt.
+
+**Skip**: debugging output, session details, temporary plans.
+
+### Flags
+
+- `--json` — Machine-readable output
+- `--no-edit` — Skip prompts (batch mode)
+- `--dry-run` — Preview changes

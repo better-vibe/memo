@@ -132,16 +132,19 @@ Generate agent-specific config files so your AI tool automatically knows how to 
 
 ```bash
 # For Claude Code — generates CLAUDE.md
-memo init --agent claude
+memo integrate claude
 
-# For Cursor — generates .cursorrules
-memo init --agent cursor
+# For Cursor — generates .cursor/rules/memo.mdc
+memo integrate cursor
 
 # For multiple agents at once
-memo init --agent claude,cursor
+memo integrate claude cursor
+
+# Or integrate with all supported agents
+memo integrate all
 ```
 
-Supported agent types: `claude`, `cursor`, `codex`. After initialization, memo prints a quick-start command reference so the agent can begin working immediately.
+Supported agent types: `claude`, `cursor`, `codex`. The `integrate` command automatically runs `memo init` if the memory graph is not yet initialized.
 
 ### 2. Extract Your First Facts
 
@@ -258,8 +261,9 @@ AI: [checks memory] I see you're using Auth0 v2.1.3 with custom
 
 ### AI Agent Integration Features
 
-- **`--agent` flag on init** — Generate `CLAUDE.md`, `.cursorrules`, or other agent config files automatically
-- **Quick-start output** — After init, memo prints a command reference so agents can start immediately
+- **`memo integrate` command** — Generate agent config files (`CLAUDE.md`, `.cursor/rules/memo.mdc`)
+** — `- **Auto-initmemo integrate` automatically runs `memo init` if needed
+- **Quick-start output** — After integration, prints command reference so agents can start immediately
 - **`help-agent`** — Generate integration guides for your specific setup
 - **`sync-docs`** — Keep AI agent documentation in sync with code
 - **Machine-readable output** — All commands support `--json` for programmatic use
@@ -272,7 +276,8 @@ AI: [checks memory] I see you're using Auth0 v2.1.3 with custom
 
 | Command | Description |
 |---------|-------------|
-| `memo init` | Initialize memory system (use `--agent claude\|cursor\|codex` for AI config) |
+| `memo init` | Initialize memory system |
+| `memo integrate <agent>` | Generate AI agent config files (claude, cursor, codex, all) |
 | `memo context` | Load full context for AI agent session startup |
 | `memo extract` | Extract facts from input (stdin, file, inline) |
 | `memo synthesize` | Rewrite summaries from facts |

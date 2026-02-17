@@ -10,7 +10,8 @@ USAGE:
   memo <command> [options]
 
 COMMANDS:
-  init              Initialize memory system (--agent claude|cursor|codex)
+  init              Initialize memory system
+  integrate         Generate AI agent integration files (claude,cursor,codex)
   extract           Extract facts from input
   draft             Queue facts for later extraction
   synthesize        Rewrite summaries from facts
@@ -39,8 +40,8 @@ EXAMPLES:
   # Initialize memo in current directory
   memo init
 
-  # Initialize with Claude Code integration
-  memo init --agent claude
+  # Integrate with Claude Code and Cursor
+  memo integrate claude cursor
 
   # Extract facts from stdin
   echo '[{"entityType": "projects", "entityName": "my-app", "fact": "Uses React", "category": "dependency", "timestamp": "2025-01-31", "source": "analysis"}]' | memo extract
@@ -71,30 +72,49 @@ USAGE:
   memo init [options]
 
 OPTIONS:
-  --agent <types>  Generate AI agent config files (comma-separated)
-                   Supported: claude, cursor, codex
-                     claude  → CLAUDE.md
-                     cursor  → .cursorrules
-                     codex   → AGENTS.md (default, always created)
   --force          Reinitialize even if already initialized
 
 DESCRIPTION:
   Creates the memory graph structure with entity directories,
   AGENTS.md, DECISIONS.md, and AI agent documentation.
 
-  When --agent is provided, generates agent-specific config files
-  containing memo integration instructions so the AI agent
-  automatically knows how to use the knowledge graph.
-
-  After initialization, prints a quick-start reference so the
-  agent can begin using memo immediately.
+  After initialization, run 'memo integrate' to configure AI
+  agent integration.
 
 EXAMPLES:
   memo init                        # basic init
-  memo init --agent claude         # init + generate CLAUDE.md
-  memo init --agent cursor         # init + generate .cursorrules
-  memo init --agent claude,cursor  # init + generate both
-  memo init --force --agent claude # reinitialize + overwrite CLAUDE.md
+  memo init --force                # reinitialize
+`,
+  integrate: `
+memo integrate - Generate AI agent integration files
+
+USAGE:
+  memo integrate <agents...> [options]
+
+ARGUMENTS:
+  agents           Agent types to integrate (claude, cursor, codex, all)
+
+OPTIONS:
+  --list           List supported agents and their config files
+  --force          Overwrite existing config files
+
+DESCRIPTION:
+  Generates agent-specific config files with instructions telling
+  the AI coding agent when, how, and where to use memo CLI commands.
+
+  For cursor, generates both:
+  - .cursor/rules/memo.mdc (modern format with frontmatter)
+  - .cursorrules (legacy, for backward compatibility)
+
+  Run after 'memo init' to configure AI agent integration.
+
+EXAMPLES:
+  memo integrate cursor           # generate .cursor/rules/memo.mdc
+  memo integrate claude           # generate CLAUDE.md
+  memo integrate claude cursor   # generate for both
+  memo integrate all              # generate all
+  memo integrate --list           # list available agents
+  memo integrate cursor --force   # overwrite existing
 `,
   extract: `
 memo extract - Extract facts from input

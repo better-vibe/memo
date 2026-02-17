@@ -17,8 +17,27 @@ my-project/
 │   └── docs/            # AI agent documentation
 ├── AGENTS.md
 ├── DECISIONS.md
-├── CLAUDE.md            # (if --agent claude)
-└── .cursorrules         # (if --agent cursor)
+├── CLAUDE.md                # (via memo integrate claude)
+└── .cursor/rules/memo.mdc  # (via memo integrate cursor)
+```
+
+## Initializing a Project
+
+```bash
+# Navigate to project root
+cd my-project
+
+# Initialize memo (or use memo integrate which auto-runs init)
+memo init
+
+# Generate AI agent config files
+memo integrate claude          # generates CLAUDE.md
+memo integrate cursor         # generates .cursor/rules/memo.mdc
+memo integrate claude cursor  # generates both
+memo integrate all            # generates all supported
+
+# Force regenerate
+memo integrate cursor --force
 ```
 
 ## Initializing a Project
@@ -133,27 +152,33 @@ Each decision section includes:
 
 ## AI Agent Config Files
 
-When you initialize memo with the `--agent` flag, agent-specific configuration files are generated so your AI tool automatically knows how to use the knowledge graph.
+Use `memo integrate` to generate agent-specific configuration files so your AI tool automatically knows how to use the knowledge graph. The command auto-runs `memo init` if needed.
 
 ### Supported Agent Types
 
 | Agent Type | Config File | Description |
 |------------|-------------|-------------|
 | `claude` | `CLAUDE.md` | Instructions for Claude Code (session startup, draft workflow, query patterns) |
-| `cursor` | `.cursorrules` | Instructions for Cursor AI (same workflow, plain-text format) |
+| `cursor` | `.cursor/rules/memo.mdc` | Instructions for Cursor AI (modern format with YAML frontmatter) |
 | `codex` | `AGENTS.md` | Uses the default AGENTS.md (always created by `memo init`) |
 
 ### Usage
 
 ```bash
 # Single agent
-memo init --agent claude
+memo integrate claude
 
-# Multiple agents (comma-separated)
-memo init --agent claude,cursor
+# Multiple agents (space-separated)
+memo integrate claude cursor
+
+# All supported agents
+memo integrate all
 
 # Overwrite existing configs
-memo init --force --agent claude
+memo integrate cursor --force
+
+# List available agents
+memo integrate --list
 ```
 
 ### Idempotent Behavior
