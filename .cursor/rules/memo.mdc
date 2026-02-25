@@ -21,18 +21,30 @@ This project uses memo, a three-layer knowledge graph that stores durable techni
 memo context --compact
 ```
 
-**During Work** — Queue discoveries without interrupting flow:
+**During Work** — Use explicit `memo extract` for durable facts:
 ```bash
-memo draft --add "Uses React 19 with server components"
-memo draft --add "Auth tokens expire after 24h"
-memo draft --flush
+echo '[{
+  "entityType": "projects",
+  "entityName": "<project-slug>",
+  "fact": "Uses React 19 with server components",
+  "category": "dependency",
+  "timestamp": "2025-01-31",
+  "source": "package.json"
+}]' | memo extract --source stdin
 ```
+
+**Low-Friction Scratch Notes** (optional — does NOT guarantee correct entity routing):
+```bash
+memo draft --add "Auth tokens expire after 24h"
+```
+
+> Avoid `memo draft --flush` for durable writes. It uses heuristic inference and may route facts to `projects/unknown`. Convert drafts to explicit extract proposals instead.
 
 **Before Changes** — Query existing knowledge:
 ```bash
 memo query --category dependency --json
 memo query --entity-type projects --json
-memo view projects/my-app --json
+memo view projects/<project-slug> --json
 ```
 
 **Before Committing** — Verify consistency:
@@ -45,10 +57,10 @@ memo verify --json
 | Command | Purpose |
 |---------|---------|
 | `memo context --compact` | Load session context |
-| `memo draft --add "<fact>"` | Queue a fact |
-| `memo draft --flush` | Extract queued facts |
+| `echo '[...]' \| memo extract` | Extract facts with explicit routing |
+| `memo draft --add "<fact>"` | Queue a scratch note (optional) |
 | `memo query --json` | Query facts |
-| `memo view <type>/<slug>` | Inspect entity |
+| `memo view <type>/<slug> --json` | Inspect entity |
 | `memo verify --json` | Check consistency |
 
 ### What to Capture

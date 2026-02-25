@@ -135,9 +135,11 @@ function getQuickStartHelp(): string {
 Run these commands at the START of every session:
   memo context --compact       Load project context (entities, facts, decisions)
 
-During work, capture facts without interruption:
-  memo draft --add "<fact>"    Queue a fact
-  memo draft --flush            Extract all queued facts
+During work, extract facts with explicit routing:
+  echo '[{"entityType": "projects", "entityName": "<slug>", ...}]' | memo extract --source stdin
+
+Optional scratch notes (heuristic routing — not guaranteed):
+  memo draft --add "<fact>"    Queue a scratch note
 
 Before making changes:
   memo query --json            Query facts with filters

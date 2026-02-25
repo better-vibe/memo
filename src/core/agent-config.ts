@@ -183,18 +183,23 @@ This project uses memo, a three-layer knowledge graph that stores durable techni
 memo context --compact
 \`\`\`
 
-**During Work** — Queue discoveries without interrupting flow:
+**During Work** — Use explicit \`memo extract\` for durable facts:
 \`\`\`bash
-memo draft --add "Uses React 19 with server components"
-memo draft --add "Auth tokens expire after 24h"
-memo draft --flush
+echo '[{"entityType": "projects", "entityName": "<project-slug>", "fact": "Uses React 19 with server components", "category": "dependency", "timestamp": "2025-01-31", "source": "package.json"}]' | memo extract --source stdin
 \`\`\`
+
+**Low-Friction Scratch Notes** (optional — does NOT guarantee correct entity routing):
+\`\`\`bash
+memo draft --add "Auth tokens expire after 24h"
+\`\`\`
+
+> Avoid \`memo draft --flush\` for durable writes. It uses heuristic inference and may route facts to \`projects/unknown\`. Convert drafts to explicit extract proposals instead.
 
 **Before Changes** — Query existing knowledge:
 \`\`\`bash
 memo query --category dependency --json
 memo query --entity-type projects --json
-memo view projects/my-app --json
+memo view projects/<project-slug> --json
 \`\`\`
 
 **Before Committing** — Verify consistency:
@@ -207,10 +212,10 @@ memo verify --json
 | Command | Purpose |
 |---------|---------|
 | \`memo context --compact\` | Load session context |
-| \`memo draft --add "<fact>"\` | Queue a fact |
-| \`memo draft --flush\` | Extract queued facts |
+| \`echo '[...]' \\| memo extract\` | Extract facts with explicit routing |
+| \`memo draft --add "<fact>"\` | Queue a scratch note (optional) |
 | \`memo query --json\` | Query facts |
-| \`memo view <type>/<slug>\` | Inspect entity |
+| \`memo view <type>/<slug> --json\` | Inspect entity |
 | \`memo verify --json\` | Check consistency |
 
 ### What to Capture
@@ -235,26 +240,27 @@ memo context --compact
 \`\`\`
 This loads all known entities, facts, and decisions into context.
 
-### During Work
-As you implement features or fix bugs, capture important discoveries:
-
-**Queue facts** (low-friction, non-blocking):
+### During Work — Durable Extraction (Preferred)
+Use explicit \`memo extract\` with \`entityType\` and \`entityName\` for deterministic routing:
 \`\`\`bash
-memo draft --add "Uses React 19 with server components"
+echo '[{"entityType": "projects", "entityName": "<project-slug>", "fact": "Uses React 19 with server components", "category": "dependency", "timestamp": "2025-01-31", "source": "package.json"}]' | memo extract --source stdin
+\`\`\`
+
+### During Work — Scratch Notes (Optional)
+Queue free-text insights without breaking flow. These are NOT durably routed:
+\`\`\`bash
 memo draft --add "Auth tokens expire after 24h"
+memo draft --list                   Show queued drafts
 \`\`\`
 
-**Flush at natural breakpoints** (after completing a feature, before switching topics):
-\`\`\`bash
-memo draft --flush
-\`\`\`
+> **Caution:** \`memo draft --flush\` uses heuristic inference and may route facts to \`projects/unknown\`. Convert queued drafts to explicit extract proposals instead.
 
 ### Before Making Changes
 Query existing knowledge to avoid repeating past decisions:
 \`\`\`bash
 memo query --category dependency --json
 memo query --entity-type projects --json
-memo view projects/my-app --json
+memo view projects/<project-slug> --json
 \`\`\`
 
 ### Before Committing
@@ -269,13 +275,12 @@ memo verify --json
 # Session bootstrap
 memo context --compact              Load all entities, facts, decisions
 
-# Capture facts during work
-memo draft --add "<fact>"           Queue a fact
-memo draft --flush                  Extract queued facts
-memo draft --list                   Show queued drafts
+# Extract structured facts (deterministic — always specify entityType + entityName)
+echo '<json>' | memo extract --source stdin
 
-# Extract structured facts
-echo '<json>' | memo extract --json
+# Scratch notes (optional — heuristic routing, not guaranteed)
+memo draft --add "<fact>"           Queue a scratch note
+memo draft --list                   Show queued drafts
 
 # Query knowledge
 memo query --json                   Query all facts
@@ -333,16 +338,19 @@ At the start of every conversation, run:
 memo context --compact
 \`\`\`
 
-### 2. During Work
-While implementing features, queue important discoveries:
+### 2. During Work — Durable Extraction (Preferred)
+Use explicit \`memo extract\` with \`entityType\` and \`entityName\`:
 \`\`\`bash
-memo draft --add "<specific fact>"
+echo '[{"entityType": "projects", "entityName": "<project-slug>", "fact": "<specific fact>", "category": "dependency", "timestamp": "YYYY-MM-DD", "source": "<source>"}]' | memo extract --source stdin
 \`\`\`
 
-Flush at natural breakpoints:
+### 2b. Scratch Notes (Optional)
+Queue free-text insights without breaking flow:
 \`\`\`bash
-memo draft --flush
+memo draft --add "<insight>"
 \`\`\`
+
+> **Caution:** \`memo draft --flush\` uses heuristic inference and may route facts to \`projects/unknown\`. Convert queued drafts to explicit extract proposals instead.
 
 ### 3. Before Changes
 Query existing knowledge:
@@ -370,10 +378,14 @@ This project uses **memo** for persistent technical memory.
 memo context --compact
 \`\`\`
 
-### During Work
+### During Work — Durable Extraction
 \`\`\`bash
-memo draft --add "<fact>"   # Queue discoveries
-memo draft --flush          # Persist at breakpoints
+echo '[{"entityType": "projects", "entityName": "<project-slug>", "fact": "<fact>", "category": "<cat>", "timestamp": "YYYY-MM-DD", "source": "<src>"}]' | memo extract --source stdin
+\`\`\`
+
+### Scratch Notes (Optional)
+\`\`\`bash
+memo draft --add "<insight>"   # Queue for review (not durably routed)
 \`\`\`
 
 ### Before Changes
@@ -413,26 +425,26 @@ memo context --compact
 \`\`\`
 This loads all entities, facts, and decisions into context.
 
-### 2. During Work
-As you make changes, capture important discoveries:
-
-**Queue facts** (non-blocking):
+### 2. During Work — Durable Extraction (Preferred)
+Use explicit \`memo extract\` with entityType and entityName:
 \`\`\`
-memo draft --add "Uses React 19 with server components"
+echo '[{"entityType": "projects", "entityName": "<project-slug>", "fact": "<fact>", "category": "<category>", "timestamp": "YYYY-MM-DD", "source": "<source>"}]' | memo extract --source stdin
+\`\`\`
+
+### 2b. Scratch Notes (Optional)
+Queue free-text insights without breaking flow:
+\`\`\`
 memo draft --add "Auth tokens expire after 24h"
 \`\`\`
 
-**Flush at breakpoints** (after completing a feature, before switching topics):
-\`\`\`
-memo draft --flush
-\`\`\`
+> Avoid \`memo draft --flush\` for durable writes. It uses heuristic inference and may route facts to \`projects/unknown\`. Convert drafts to explicit extract proposals instead.
 
 ### 3. Before Making Changes
 Query existing knowledge to avoid repeating decisions:
 \`\`\`
 memo query --category dependency --json
 memo query --entity-type projects --json
-memo view projects/my-app --json
+memo view projects/<project-slug> --json
 \`\`\`
 
 ### 4. Before Committing
@@ -448,10 +460,14 @@ memo verify --json
 memo context --compact              # Load session context
 \`\`\`
 
-### Capture Facts
+### Extract Facts (Deterministic — always specify entityType + entityName)
 \`\`\`
-memo draft --add "<fact>"           # Queue a fact
-memo draft --flush                   # Extract queued facts
+echo '<json>' | memo extract --source stdin
+\`\`\`
+
+### Scratch Notes (Optional — heuristic routing, not guaranteed)
+\`\`\`
+memo draft --add "<fact>"           # Queue a scratch note
 memo draft --list                    # Show queued drafts
 \`\`\`
 
@@ -501,9 +517,13 @@ This project uses memo for persistent technical memory.
 ### Session Start
 memo context --compact
 
-### During Work
-memo draft --add "<fact>"
-memo draft --flush
+### During Work — Durable Extraction
+echo '[{"entityType": "projects", "entityName": "<project-slug>", "fact": "<fact>", "category": "<cat>", "timestamp": "YYYY-MM-DD", "source": "<src>"}]' | memo extract --source stdin
+
+### Scratch Notes (Optional)
+memo draft --add "<insight>"   # Queue for review (not durably routed)
+
+> Avoid memo draft --flush for durable writes — it may route facts to projects/unknown.
 
 ### Before Changes
 memo query --json
@@ -515,8 +535,8 @@ memo verify --json
 ## Commands
 
 memo context --compact           Load session context
-memo draft --add "<fact>"       Queue a fact
-memo draft --flush              Extract queued facts
+echo '<json>' | memo extract     Extract facts with explicit routing
+memo draft --add "<fact>"       Queue a scratch note (optional)
 memo query --json              Query facts
 memo view <type>/<slug>        View entity
 memo verify --json             Check consistency

@@ -93,16 +93,15 @@ function getQuickStartHelp(): string {
 
 COMMANDS:
   memo context --compact       Load session context (run at conversation start)
-  memo draft --add "<fact>"    Queue a fact during work
-  memo draft --flush           Extract all queued drafts to knowledge graph
+  memo extract --source stdin  Extract facts from JSON with explicit entity routing
+  memo draft --add "<fact>"    Queue a scratch note (optional, heuristic routing)
   memo query --json            Query facts with filters
   memo view <type>/<slug>      Inspect an entity
-  memo extract --json          Extract structured facts from JSON input
   memo synthesize --all        Rewrite all summaries from active facts
   memo verify --json           Check graph consistency
   memo status                  Show graph state
   memo help <command>          Detailed help for a command
-  memo integrate <type>          Configure AI agent integration
+  memo integrate <type>        Configure AI agent integration
 
 KEY FLAGS:
   --json       Machine-readable JSON output
@@ -112,6 +111,6 @@ KEY FLAGS:
 WORKFLOW:
   1. memo context --compact          # bootstrap session
   2. <do work>
-  3. memo draft --add "<insight>"     # capture facts as you go
-  4. memo draft --flush               # persist at breakpoints`;
+  3. echo '<json>' | memo extract    # extract with entityType + entityName
+  4. memo verify --json              # check consistency before commit`;
 }

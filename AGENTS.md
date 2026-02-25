@@ -126,13 +126,15 @@ During development of memo CLI enhancements, I (the AI agent) experienced fricti
 
 **Interface:**
 ```bash
-# Accumulate facts during work
+# Accumulate scratch notes during work
 memo draft --add "Projects now use TypeScript 5.9"
 memo draft --add "Removed developers entity type"
 
-# Flush when convenient
-memo draft --flush
+# Review and convert to explicit extract proposals (preferred over flush)
+memo draft --list --json
 ```
+
+> **Caution:** `memo draft --flush` uses heuristic entity inference and may misroute facts to `projects/unknown`. Prefer converting queued drafts to explicit `memo extract` proposals with `entityType` and `entityName`.
 
 **Benefit:** No immediate context switching.
 
@@ -184,13 +186,13 @@ When working WITH memo (not just ON memo):
 - Discovering constraints or bugs
 - Refactoring significant code areas
 
-### Use This Template:
+### Use Explicit `memo extract` (Deterministic Routing):
 ```bash
 echo '[{
-  "entityType": "projects|libraries|patterns",
-  "entityName": "<name>",
+  "entityType": "projects",
+  "entityName": "<project-slug>",
   "fact": "<specific, atomic claim>",
-  "category": "dependency|architecture|constraint|...",
+  "category": "dependency|architecture|constraint|version|status|bug|tech_debt|rule|decision",
   "timestamp": "YYYY-MM-DD",
   "source": "<file or operation that revealed this>",
   "confidence": 0.0-1.0,
@@ -198,20 +200,28 @@ echo '[{
 }]' | memo extract --source stdin
 ```
 
+Every proposal MUST include `entityType` and `entityName` to guarantee correct routing.
+
 ### Query Before Changes:
 ```bash
-# Check existing facts about a file
 memo query --query "<filename>" --json
-
-# Check related entities
 memo query --related-to <entity> --json
 ```
 
-### Draft Mode (Proposed):
+### Verify After Writes:
 ```bash
-# Queue insights during coding
+memo view <type>/<slug> --json
+memo context --compact --json
+```
+
+### Draft Mode (Optional — Low-Friction Queueing Only):
+`memo draft --add` can queue free-text insights, but `memo draft --flush` uses heuristic entity inference that may route facts to `projects/unknown`. Prefer explicit `memo extract` for durable writes.
+
+```bash
+# Queue insights during coding (OK for scratch notes)
 memo draft --add "<insight>"
 
-# Flush at end of session
-memo draft --flush
+# For durable extraction, convert drafts to explicit proposals instead of flushing:
+memo draft --list --json   # review queued items
+memo draft --clear         # clear after manual extraction via memo extract
 ```

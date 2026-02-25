@@ -46,10 +46,11 @@ EXAMPLES:
   # Extract facts from stdin
   echo '[{"entityType": "projects", "entityName": "my-app", "fact": "Uses React", "category": "dependency", "timestamp": "2025-01-31", "source": "analysis"}]' | memo extract
 
-  # Queue facts for later extraction
-  memo draft --add "Uses TypeScript 5.9"
+  # Extract facts with explicit entity routing
+  echo '[{"entityType": "projects", "entityName": "my-app", "fact": "Uses TypeScript 5.9", "category": "dependency", "timestamp": "2025-01-31", "source": "analysis"}]' | memo extract
+
+  # Queue scratch notes (optional — heuristic routing, not guaranteed)
   memo draft --add "Implements atomic writes"
-  memo draft --flush
 
   # View an entity
   memo view projects/my-app
@@ -136,26 +137,31 @@ EXAMPLE:
   echo '[{"entityType": "projects", "entityName": "my-app", "fact": "Uses React", "category": "dependency", "timestamp": "2025-01-31", "source": "analysis"}]' | memo extract
 `,
   draft: `
-memo draft - Queue facts for later extraction
+memo draft - Queue scratch notes for later review
 
 USAGE:
   memo draft [options]
 
 OPTIONS:
-  --add <fact>   Add a fact to the draft queue
+  --add <fact>   Add a scratch note to the draft queue
   --list         List all queued drafts
-  --flush        Extract all queued drafts to knowledge graph
+  --flush        Extract all queued drafts (uses heuristic entity inference)
   --clear        Clear draft queue without extracting
 
 DESCRIPTION:
-  Accumulate facts without breaking coding flow. Facts are queued
-  in memory/_meta/draft.json until flushed.
+  Accumulate scratch notes without breaking coding flow. Notes are
+  queued in memory/_meta/draft.json.
+
+  CAUTION: --flush uses heuristic inference and may route facts to
+  projects/unknown. For durable writes, prefer converting queued
+  drafts to explicit memo extract proposals with entityType and
+  entityName.
 
 EXAMPLE:
   memo draft --add "Uses TypeScript 5.9"
   memo draft --add "Implements atomic writes"
   memo draft --list
-  memo draft --flush
+  memo draft --list --json    # review, then use memo extract instead of flush
 `,
   view: `
 memo view - Inspect entity and facts
